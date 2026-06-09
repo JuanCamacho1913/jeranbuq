@@ -1,0 +1,14 @@
+{
+  "name": "@barberia-jeranbuq/typescript-config",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "exports": {
+    "./base.json": "./base.json",
+    "./nextjs.json": "./nextjs.json"
+  },
+  "files": [
+    "base.json",
+    "nextjs.json"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@barberia-jeranbuq/eslint-config",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "exports": {
+    "./base": "./base.js",
+    "./next": "./next.js"
+  },
+  "files": [
+    "base.js",
+    "next.js"
+  ],
+  "peerDependencies": {
+    "eslint": ">=9.0.0",
+    "typescript-eslint": ">=8.0.0",
+    "eslint-config-next": ">=15.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0",
+    "eslint-config-next": "^15.0.0"
+  }
+}
