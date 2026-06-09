@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+.next/
+*.tsbuildinfo
+
+# Prisma generated client
+generated/
+
+# Environment files
+.env*.local
+.env.local
+.env.production
+
+# Turborepo
+.turbo/
+
+# Editor directories
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# pnpm
+.pnpm-store/
