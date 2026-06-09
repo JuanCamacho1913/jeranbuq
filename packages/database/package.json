@@ -1,0 +1,22 @@
+{
+  "name": "@barberia-jeranbuq/database",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "db:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "db:push": "prisma db push --schema=./prisma/schema.prisma",
+    "db:migrate": "prisma migrate deploy --schema=./prisma/schema.prisma",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/client": "^6",
+    "prisma": "^6"
+  },
+  "devDependencies": {
+    "@barberia-jeranbuq/typescript-config": "workspace:*",
+    "typescript": "^5"
+  }
+}
