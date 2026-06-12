@@ -14,7 +14,11 @@ export function GoogleSignInButton({
 
   async function handleClick() {
     setLoading(true);
-    await signIn("google", { callbackUrl });
+    try {
+      await signIn("google", { callbackUrl });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

@@ -1,7 +1,6 @@
 import type { DefaultSession, DefaultUser } from "next-auth";
 import type { DefaultJWT } from "next-auth/jwt";
-
-type UserRole = "CLIENT" | "ADMIN";
+import type { UserRole } from "@barberia-jeranbuq/shared";
 
 declare module "next-auth" {
   interface Session {

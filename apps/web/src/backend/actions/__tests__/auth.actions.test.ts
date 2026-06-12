@@ -99,7 +99,7 @@ describe("validateBarberCode", () => {
     expect(setCall[2]).toMatchObject({ httpOnly: true, maxAge: 300 });
   });
 
-  it("does not set cookie and returns error when code is wrong", async () => {
+  it("does not set cookie and returns INVALID_CODE error code when code is wrong", async () => {
     process.env.BARBER_SECRET_CODE = "super-secret";
 
     const mockCookieStore = makeCookieStore();
@@ -108,11 +108,11 @@ describe("validateBarberCode", () => {
     const formData = makeFormData({ code: "wrong-code" });
     const result = await validateBarberCode(formData);
 
-    expect(result).toEqual({ success: false, error: "Invalid code" });
+    expect(result).toEqual({ success: false, error: "INVALID_CODE" });
     expect(mockCookieStore.set).not.toHaveBeenCalled();
   });
 
-  it("returns error without throwing when BARBER_SECRET_CODE env var is missing", async () => {
+  it("returns SERVICE_UNAVAILABLE error code without throwing when BARBER_SECRET_CODE env var is missing", async () => {
     delete process.env.BARBER_SECRET_CODE;
 
     const mockCookieStore = makeCookieStore();
@@ -123,7 +123,7 @@ describe("validateBarberCode", () => {
     // Must NOT throw — must return a structured error
     await expect(validateBarberCode(formData)).resolves.toEqual({
       success: false,
-      error: "Service unavailable",
+      error: "SERVICE_UNAVAILABLE",
     });
     expect(mockCookieStore.set).not.toHaveBeenCalled();
   });
@@ -184,11 +184,9 @@ describe("completeOnboarding", () => {
     expect(unstable_update).not.toHaveBeenCalled();
   });
 
-  it("does not redirect when called again after onboarding is complete (SPEC-ONBOARD-002: no redirect loop)", async () => {
-    // Simulate user who already completed onboarding calling the action again
-    // The action should validate phone → update DB → unstable_update → redirect("/")
-    // The middleware (not this action) is responsible for preventing loop.
-    // Here we verify the action itself completes normally and redirects.
+  it("redirects immediately without touching DB when called again after onboarding is complete", async () => {
+    // FIX-3: action now early-exits via redirect if onboardingCompletedAt is already set.
+    // This prevents re-submission attacks via direct POST.
     vi.mocked(auth).mockResolvedValue({
       user: {
         id: "user-456",
@@ -198,16 +196,13 @@ describe("completeOnboarding", () => {
       },
     } as never);
 
-    vi.mocked(prisma.user.update).mockResolvedValue({} as never);
-    vi.mocked(unstable_update).mockResolvedValue(null);
-
     const formData = makeFormData({ phone: "+5491199999999" });
 
-    // Action throws redirect — that's expected. The middleware test covers the loop prevention.
+    // Action throws redirect (early exit) — no DB call
     await expect(completeOnboarding(formData)).rejects.toThrow("NEXT_REDIRECT:/");
 
-    // DB updated and JWT patched — action did its job
-    expect(prisma.user.update).toHaveBeenCalledOnce();
-    expect(unstable_update).toHaveBeenCalledOnce();
+    // DB must NOT be updated — early redirect before any DB work
+    expect(prisma.user.update).not.toHaveBeenCalled();
+    expect(unstable_update).not.toHaveBeenCalled();
   });
 });

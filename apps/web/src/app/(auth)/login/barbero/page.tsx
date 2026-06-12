@@ -1,7 +1,13 @@
 import { redirect } from "next/navigation";
+import { auth } from "@/backend/lib/auth";
 import { BarberCodeForm } from "@/frontend/components/auth/barber-code-form";
 
-export default function BarberLoginPage() {
+export default async function BarberLoginPage() {
+  const session = await auth();
+  if (session) {
+    redirect("/");
+  }
+
   if (!process.env.BARBER_SECRET_CODE) {
     redirect("/login");
   }

@@ -3,6 +3,7 @@ import {
   SessionUserSchema,
   OnboardingSchema,
   BarberCodeSchema,
+  UserRoleSchema,
 } from "./auth";
 
 // ─── SessionUserSchema ────────────────────────────────────────────────────────
@@ -125,12 +126,36 @@ describe("OnboardingSchema", () => {
     ).toThrow();
   });
 
+  it("rejects a string with only spaces (no digits)", () => {
+    expect(() => OnboardingSchema.parse({ phone: "       " })).toThrow();
+  });
+
+  it("rejects a string with only parentheses (no digits)", () => {
+    expect(() => OnboardingSchema.parse({ phone: "(((((((" })).toThrow();
+  });
+
   it("rejects an empty string", () => {
     expect(() => OnboardingSchema.parse({ phone: "" })).toThrow();
   });
 
   it("rejects a missing phone field", () => {
     expect(() => OnboardingSchema.parse({})).toThrow();
+  });
+});
+
+// ─── UserRoleSchema ───────────────────────────────────────────────────────────
+
+describe("UserRoleSchema", () => {
+  it("accepts CLIENT", () => {
+    expect(() => UserRoleSchema.parse("CLIENT")).not.toThrow();
+  });
+
+  it("accepts ADMIN", () => {
+    expect(() => UserRoleSchema.parse("ADMIN")).not.toThrow();
+  });
+
+  it("rejects unknown role", () => {
+    expect(() => UserRoleSchema.parse("SUPERUSER")).toThrow();
   });
 });
 

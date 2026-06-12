@@ -1,22 +1,27 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import { validateBarberCode } from "@/backend/actions/auth.actions";
+import {
+  type ActionState,
+  initialActionState,
+} from "@/frontend/types/form";
 import { GoogleSignInButton } from "./google-sign-in-button";
 
-type FormState = {
-  success: boolean;
-  error?: string;
-};
+// ─── Error code → display message map ────────────────────────────────────────
 
-const initialState: FormState = { success: false };
+const errorMessages: Record<string, string> = {
+  INVALID_CODE: "Código incorrecto",
+  SERVICE_UNAVAILABLE: "Servicio no disponible. Intentá más tarde.",
+  INVALID_INPUT: "El código no puede estar vacío",
+};
 
 export function BarberCodeForm() {
   const [state, formAction, isPending] = useActionState(
-    async (_prev: FormState, formData: FormData): Promise<FormState> => {
+    async (_prev: ActionState, formData: FormData): Promise<ActionState> => {
       return validateBarberCode(formData);
     },
-    initialState
+    initialActionState
   );
 
   if (state.success) {
@@ -53,7 +58,7 @@ export function BarberCodeForm() {
 
       {state.error && (
         <p role="alert" className="text-sm text-red-600">
-          {state.error === "Invalid code" ? "Código incorrecto" : state.error}
+          {errorMessages[state.error] ?? state.error}
         </p>
       )}
 

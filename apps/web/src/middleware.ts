@@ -1,15 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import type { Session } from "next-auth";
 import { auth } from "@/backend/lib/auth";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type AuthSession = {
-  user?: {
-    role?: string | null;
-    onboardingCompletedAt?: string | null;
-  };
-} | null;
 
 // ─── Core redirect logic (extracted for testability) ─────────────────────────
 
@@ -21,7 +13,7 @@ export type AuthSession = {
  *  4. Everything else                  → allow
  */
 export function resolveRedirect(
-  session: AuthSession,
+  session: Session | null,
   pathname: string,
   baseUrl: string
 ): URL | null {
@@ -48,7 +40,7 @@ export function resolveRedirect(
 export default auth(function middleware(req: NextRequest) {
   // auth() injects the session token into req.auth (next-auth v5)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const session = (req as any).auth as AuthSession;
+  const session = (req as any).auth as Session | null;
 
   const redirect = resolveRedirect(session, req.nextUrl.pathname, req.url);
   if (redirect) {

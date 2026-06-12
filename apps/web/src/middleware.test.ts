@@ -12,18 +12,18 @@ vi.mock("next/server", () => ({
 }));
 
 import { resolveRedirect } from "./middleware";
-import type { AuthSession } from "./middleware";
+import type { Session } from "next-auth";
 
 const BASE_URL = "https://barberia.app";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function clientSession(onboardingCompletedAt: string | null = "2024-01-01T00:00:00.000Z"): AuthSession {
-  return { user: { role: "CLIENT", onboardingCompletedAt } };
+function clientSession(onboardingCompletedAt: string | null = "2024-01-01T00:00:00.000Z"): Session {
+  return { user: { role: "CLIENT", onboardingCompletedAt } } as Session;
 }
 
-function adminSession(onboardingCompletedAt: string | null = "2024-01-01T00:00:00.000Z"): AuthSession {
-  return { user: { role: "ADMIN", onboardingCompletedAt } };
+function adminSession(onboardingCompletedAt: string | null = "2024-01-01T00:00:00.000Z"): Session {
+  return { user: { role: "ADMIN", onboardingCompletedAt } } as Session;
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────

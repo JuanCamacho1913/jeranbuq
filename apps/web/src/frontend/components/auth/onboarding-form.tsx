@@ -2,20 +2,24 @@
 
 import { useActionState } from "react";
 import { completeOnboarding } from "@/backend/actions/auth.actions";
+import {
+  type ActionState,
+  initialActionState,
+} from "@/frontend/types/form";
 
-type FormState = {
-  success: boolean;
-  error?: string;
+// ─── Error code → display message map ────────────────────────────────────────
+
+const errorMessages: Record<string, string> = {
+  INVALID_PHONE: "El número de teléfono no es válido",
+  UNAUTHENTICATED: "Tu sesión expiró. Iniciá sesión nuevamente.",
 };
-
-const initialState: FormState = { success: false };
 
 export function OnboardingForm() {
   const [state, formAction, isPending] = useActionState(
-    async (_prev: FormState, formData: FormData): Promise<FormState> => {
+    async (_prev: ActionState, formData: FormData): Promise<ActionState> => {
       return completeOnboarding(formData);
     },
-    initialState
+    initialActionState
   );
 
   return (
@@ -41,7 +45,7 @@ export function OnboardingForm() {
 
       {state.error && (
         <p role="alert" className="text-sm text-red-600">
-          {state.error}
+          {errorMessages[state.error] ?? state.error}
         </p>
       )}
 

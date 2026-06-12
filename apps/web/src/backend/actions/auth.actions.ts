@@ -1,5 +1,6 @@
 "use server";
 
+import { timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth, unstable_update } from "@/backend/lib/auth";
@@ -27,7 +28,7 @@ export async function validateBarberCode(
 ): Promise<{ success: boolean; error?: string }> {
   const secretCode = process.env.BARBER_SECRET_CODE;
   if (!secretCode) {
-    return { success: false, error: "Service unavailable" };
+    return { success: false, error: "SERVICE_UNAVAILABLE" };
   }
 
   const parsed = BarberCodeSchema.safeParse({
@@ -35,11 +36,18 @@ export async function validateBarberCode(
   });
 
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid input" };
+    return { success: false, error: "INVALID_INPUT" };
   }
 
-  if (parsed.data.code !== secretCode) {
-    return { success: false, error: "Invalid code" };
+  // Constant-time comparison to prevent character-by-character timing inference
+  const codeBuffer = Buffer.from(parsed.data.code);
+  const secretBuffer = Buffer.from(secretCode);
+  const match =
+    codeBuffer.length === secretBuffer.length &&
+    timingSafeEqual(codeBuffer, secretBuffer);
+
+  if (!match) {
+    return { success: false, error: "INVALID_CODE" };
   }
 
   const cookieStore = await cookies();
@@ -67,7 +75,12 @@ export async function completeOnboarding(
   const session = await auth();
 
   if (!session?.user?.id) {
-    return { success: false, error: "Unauthenticated" };
+    return { success: false, error: "UNAUTHENTICATED" };
+  }
+
+  // Prevent re-submission if onboarding was already completed
+  if (session.user.onboardingCompletedAt) {
+    redirect("/");
   }
 
   const parsed = OnboardingSchema.safeParse({
@@ -75,7 +88,7 @@ export async function completeOnboarding(
   });
 
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? "Invalid phone" };
+    return { success: false, error: "INVALID_PHONE" };
   }
 
   const { phone } = parsed.data;
