@@ -9,7 +9,9 @@
       ]
     },
     "rootDir": ".",
-    "incremental": true
+    "incremental": true,
+    "declaration": false,
+    "declarationMap": false
   },
   "include": [
     "src/**/*",
