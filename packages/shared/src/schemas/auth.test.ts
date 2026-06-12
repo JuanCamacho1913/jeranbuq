@@ -91,13 +91,31 @@ describe("OnboardingSchema", () => {
     ).not.toThrow();
   });
 
+  it("accepts phone with spaces (formatted Argentinian number)", () => {
+    expect(() =>
+      OnboardingSchema.parse({ phone: "+54 9 11 1234-5678" })
+    ).not.toThrow();
+  });
+
+  it("accepts phone with dashes (formatted US number)", () => {
+    expect(() =>
+      OnboardingSchema.parse({ phone: "+1-555-123-4567" })
+    ).not.toThrow();
+  });
+
+  it("accepts phone with parentheses (formatted area code)", () => {
+    expect(() =>
+      OnboardingSchema.parse({ phone: "(011) 4555-1234" })
+    ).not.toThrow();
+  });
+
   it("rejects a phone that is too short (< 7 chars)", () => {
     expect(() => OnboardingSchema.parse({ phone: "12345" })).toThrow();
   });
 
-  it("rejects a phone that is too long (> 15 chars)", () => {
+  it("rejects a phone that is too long (> 20 chars)", () => {
     expect(() =>
-      OnboardingSchema.parse({ phone: "1234567890123456" })
+      OnboardingSchema.parse({ phone: "123456789012345678901" })
     ).toThrow();
   });
 

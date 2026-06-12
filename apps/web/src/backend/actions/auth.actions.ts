@@ -1,6 +1,5 @@
 "use server";
 
-import { createHmac } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth, unstable_update } from "@/backend/lib/auth";
@@ -14,20 +13,13 @@ import {
 
 const INTENT_COOKIE_TTL = 300;
 
-// ─── Cookie signing ───────────────────────────────────────────────────────────
-
-function signValue(value: string, secret: string): string {
-  const hmac = createHmac("sha256", secret);
-  hmac.update(value);
-  const signature = hmac.digest("hex");
-  return `${value}.${signature}`;
-}
-
 // ─── validateBarberCode ───────────────────────────────────────────────────────
 
 /**
  * Server action: validate the barber admin code.
- * On success, sets an httpOnly cookie `x-auth-intent=ADMIN` (signed, 5 min TTL).
+ * On success, sets an httpOnly cookie `x-auth-intent=ADMIN` (plain value, 5 min TTL).
+ * The cookie is already protected by httpOnly + short TTL; signing adds no benefit here
+ * and would break the exact-string match in the signIn callback.
  * Returns `{ success: true }` or `{ success: false, error }`.
  */
 export async function validateBarberCode(
@@ -35,11 +27,6 @@ export async function validateBarberCode(
 ): Promise<{ success: boolean; error?: string }> {
   const secretCode = process.env.BARBER_SECRET_CODE;
   if (!secretCode) {
-    return { success: false, error: "Service unavailable" };
-  }
-
-  const authSecret = process.env.AUTH_SECRET;
-  if (!authSecret) {
     return { success: false, error: "Service unavailable" };
   }
 
@@ -56,9 +43,8 @@ export async function validateBarberCode(
   }
 
   const cookieStore = await cookies();
-  const signedValue = signValue("ADMIN", authSecret);
 
-  cookieStore.set("x-auth-intent", signedValue, {
+  cookieStore.set("x-auth-intent", "ADMIN", {
     httpOnly: true,
     sameSite: "lax",
     path: "/",

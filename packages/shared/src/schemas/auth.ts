@@ -11,7 +11,8 @@ export const SessionUserSchema = z.object({
 });
 
 export const OnboardingSchema = z.object({
-  phone: z.string().min(7).max(15).regex(/^\+?[0-9]+$/),
+  // Allow spaces, dashes, parentheses, and dots for formatted numbers like "+54 9 11 1234-5678"
+  phone: z.string().min(7).max(20).regex(/^\+?[\d\s\-().]+$/),
 });
 
 export const BarberCodeSchema = z.object({

@@ -79,9 +79,8 @@ describe("validateBarberCode", () => {
     process.env = originalEnv;
   });
 
-  it("sets httpOnly cookie and returns success when code matches BARBER_SECRET_CODE", async () => {
+  it("sets httpOnly cookie with plain 'ADMIN' value and returns success when code matches", async () => {
     process.env.BARBER_SECRET_CODE = "super-secret";
-    process.env.AUTH_SECRET = "test-auth-secret";
 
     const mockCookieStore = makeCookieStore();
     vi.mocked(cookies).mockResolvedValue(mockCookieStore as never);
@@ -94,16 +93,14 @@ describe("validateBarberCode", () => {
 
     const setCall = mockCookieStore.set.mock.calls[0]!;
     expect(setCall[0]).toBe("x-auth-intent");
-    // Value should be a signed string (not empty)
-    expect(typeof setCall[1]).toBe("string");
-    expect((setCall[1] as string).length).toBeGreaterThan(0);
+    // Value must be exactly "ADMIN" — signIn callback does an exact-string match
+    expect(setCall[1]).toBe("ADMIN");
     // Cookie options: httpOnly, maxAge 5 minutes
     expect(setCall[2]).toMatchObject({ httpOnly: true, maxAge: 300 });
   });
 
   it("does not set cookie and returns error when code is wrong", async () => {
     process.env.BARBER_SECRET_CODE = "super-secret";
-    process.env.AUTH_SECRET = "test-auth-secret";
 
     const mockCookieStore = makeCookieStore();
     vi.mocked(cookies).mockResolvedValue(mockCookieStore as never);
@@ -117,7 +114,6 @@ describe("validateBarberCode", () => {
 
   it("returns error without throwing when BARBER_SECRET_CODE env var is missing", async () => {
     delete process.env.BARBER_SECRET_CODE;
-    process.env.AUTH_SECRET = "test-auth-secret";
 
     const mockCookieStore = makeCookieStore();
     vi.mocked(cookies).mockResolvedValue(mockCookieStore as never);
@@ -134,7 +130,6 @@ describe("validateBarberCode", () => {
 
   it("returns error without throwing when code field is empty (schema validation)", async () => {
     process.env.BARBER_SECRET_CODE = "super-secret";
-    process.env.AUTH_SECRET = "test-auth-secret";
 
     const mockCookieStore = makeCookieStore();
     vi.mocked(cookies).mockResolvedValue(mockCookieStore as never);
