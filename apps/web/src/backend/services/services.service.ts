@@ -71,7 +71,7 @@ export async function deactivateService(
 
   const service = await prisma.service.update({
     where: { id },
-    data: { isActive: false },
+    data: { active: false },
   });
 
   return { ok: true, data: service };
@@ -89,7 +89,7 @@ export async function getServices(
 ): Promise<ApiResponse<Service[]>> {
   const services = includeInactive
     ? await prisma.service.findMany()
-    : await prisma.service.findMany({ where: { isActive: true } });
+    : await prisma.service.findMany({ where: { active: true } });
 
   return { ok: true, data: services };
 }

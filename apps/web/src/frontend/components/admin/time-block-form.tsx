@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  CreateTimeBlockSchema,
+  createTimeBlockSchema,
   type CreateTimeBlockData,
 } from "@barberia-jeranbuq/shared";
 import {
@@ -55,7 +55,7 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
   );
 
   const form = useForm<CreateTimeBlockData>({
-    resolver: zodResolver(CreateTimeBlockSchema),
+    resolver: zodResolver(createTimeBlockSchema),
     defaultValues: {
       date: "",
       startTime: "",

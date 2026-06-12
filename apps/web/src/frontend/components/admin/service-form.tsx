@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Service } from "@barberia-jeranbuq/database";
 import {
-  CreateServiceSchema,
-  UpdateServiceSchema,
+  createServiceSchema,
+  updateServiceSchema,
   type ServiceFormData,
   type UpdateServiceData,
 } from "@barberia-jeranbuq/shared";
@@ -71,11 +71,11 @@ function CreateServiceForm({
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<ServiceFormData>({
-    resolver: zodResolver(CreateServiceSchema),
+    resolver: zodResolver(createServiceSchema),
     defaultValues: {
       name: "",
       description: "",
-      durationMinutes: 30,
+      durationMin: 30,
       price: 0,
     },
   });
@@ -135,7 +135,7 @@ function CreateServiceForm({
 
         <FormField
           control={form.control}
-          name="durationMinutes"
+          name="durationMin"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Duration (minutes)</FormLabel>
@@ -206,12 +206,12 @@ function EditServiceForm({
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<UpdateServiceData>({
-    resolver: zodResolver(UpdateServiceSchema),
+    resolver: zodResolver(updateServiceSchema),
     defaultValues: {
       id: service.id,
       name: service.name,
       description: service.description ?? "",
-      durationMinutes: service.durationMinutes,
+      durationMin: service.durationMin,
       price: service.price,
     },
   });
@@ -271,7 +271,7 @@ function EditServiceForm({
 
         <FormField
           control={form.control}
-          name="durationMinutes"
+          name="durationMin"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Duration (minutes)</FormLabel>

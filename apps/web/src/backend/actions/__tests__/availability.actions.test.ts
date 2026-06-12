@@ -49,7 +49,7 @@ const mockAvailabilityRow = (dayOfWeek: number) => ({
   startTime: "07:00",
   endTime: "19:00",
   slotMinutes: 30,
-  isActive: dayOfWeek !== 0,
+  active: dayOfWeek !== 0,
 });
 
 const mockSchedule = Array.from({ length: 7 }, (_, i) =>
@@ -72,7 +72,7 @@ const validDays = Array.from({ length: 7 }, (_, i) => ({
   startTime: "07:00",
   endTime: "19:00",
   slotMinutes: 30,
-  isActive: i !== 0,
+  active: i !== 0,
 }));
 
 const validTimeBlockInput = {

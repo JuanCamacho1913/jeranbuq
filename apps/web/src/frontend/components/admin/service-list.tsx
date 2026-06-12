@@ -52,15 +52,15 @@ function ServiceRow({ service }: { service: Service }) {
       <TableCell className="font-medium">{service.name}</TableCell>
 
       {/* Duration */}
-      <TableCell>{formatDuration(service.durationMinutes)}</TableCell>
+      <TableCell>{formatDuration(service.durationMin)}</TableCell>
 
       {/* Price */}
       <TableCell>{formatPrice(service.price)}</TableCell>
 
       {/* Status */}
       <TableCell>
-        <Badge variant={service.isActive ? "default" : "secondary"}>
-          {service.isActive ? "Active" : "Inactive"}
+        <Badge variant={service.active ? "default" : "secondary"}>
+          {service.active ? "Active" : "Inactive"}
         </Badge>
       </TableCell>
 
@@ -79,7 +79,7 @@ function ServiceRow({ service }: { service: Service }) {
           />
 
           {/* Deactivate — only shown for active services */}
-          {service.isActive && (
+          {service.active && (
             <Button
               variant="destructive"
               size="sm"

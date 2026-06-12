@@ -10,8 +10,8 @@ import {
   repeatTimeBlockForWeekdays,
 } from "@/backend/services/availability.service";
 import {
-  UpdateScheduleSchema,
-  CreateTimeBlockSchema,
+  updateScheduleSchema,
+  createTimeBlockSchema,
 } from "@barberia-jeranbuq/shared";
 import type {
   DaySchedule,
@@ -43,7 +43,7 @@ export async function getScheduleAction(): Promise<
 export async function updateScheduleAction(
   input: unknown
 ): Promise<ApiResponse<AdminAvailability[]>> {
-  const parsed = UpdateScheduleSchema.safeParse(input);
+  const parsed = updateScheduleSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "VALIDATION_ERROR" };
   }
@@ -68,7 +68,7 @@ export async function updateScheduleAction(
 export async function createTimeBlockAction(
   input: unknown
 ): Promise<ApiResponse<TimeBlock>> {
-  const parsed = CreateTimeBlockSchema.safeParse(input);
+  const parsed = createTimeBlockSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "VALIDATION_ERROR" };
   }
@@ -119,7 +119,7 @@ export async function deleteTimeBlockAction(
 export async function repeatTimeBlockForWeekdaysAction(
   input: unknown
 ): Promise<ApiResponse<TimeBlock[]>> {
-  const parsed = CreateTimeBlockSchema.safeParse(input);
+  const parsed = createTimeBlockSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "VALIDATION_ERROR" };
   }

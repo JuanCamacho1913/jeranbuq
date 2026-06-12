@@ -5,32 +5,32 @@ import { z } from "zod";
 const timeRegex = /^\d{2}:\d{2}$/;
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
-// ─── DayScheduleSchema ────────────────────────────────────────────────────────
+// ─── dayScheduleSchema ────────────────────────────────────────────────────────
 
-export const DayScheduleSchema = z.object({
+export const dayScheduleSchema = z.object({
   dayOfWeek: z.number().int().min(0).max(6),
   startTime: z.string().regex(timeRegex),
   endTime: z.string().regex(timeRegex),
   slotMinutes: z.number().int().min(10).max(120).default(30),
-  isActive: z.boolean(),
+  active: z.boolean(),
 });
 
-// ─── UpdateScheduleSchema ─────────────────────────────────────────────────────
+// ─── updateScheduleSchema ─────────────────────────────────────────────────────
 
-export const UpdateScheduleSchema = z
-  .array(DayScheduleSchema)
+export const updateScheduleSchema = z
+  .array(dayScheduleSchema)
   .length(7)
   .refine(
     (days) =>
       days.every(
-        (day) => !day.isActive || day.endTime > day.startTime
+        (day) => !day.active || day.endTime > day.startTime
       ),
     { message: "endTime must be after startTime for active days" }
   );
 
-// ─── CreateTimeBlockSchema ────────────────────────────────────────────────────
+// ─── createTimeBlockSchema ────────────────────────────────────────────────────
 
-export const CreateTimeBlockSchema = z
+export const createTimeBlockSchema = z
   .object({
     date: z.string().regex(dateRegex),
     startTime: z.string().regex(timeRegex),
@@ -44,6 +44,6 @@ export const CreateTimeBlockSchema = z
 
 // ─── Inferred Types ───────────────────────────────────────────────────────────
 
-export type DaySchedule = z.infer<typeof DayScheduleSchema>;
-export type UpdateScheduleData = z.infer<typeof UpdateScheduleSchema>;
-export type CreateTimeBlockData = z.infer<typeof CreateTimeBlockSchema>;
+export type DaySchedule = z.infer<typeof dayScheduleSchema>;
+export type UpdateScheduleData = z.infer<typeof updateScheduleSchema>;
+export type CreateTimeBlockData = z.infer<typeof createTimeBlockSchema>;

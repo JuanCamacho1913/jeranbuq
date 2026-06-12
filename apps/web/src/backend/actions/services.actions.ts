@@ -9,8 +9,8 @@ import {
   getServices,
 } from "@/backend/services/services.service";
 import {
-  CreateServiceSchema,
-  UpdateServiceSchema,
+  createServiceSchema,
+  updateServiceSchema,
 } from "@barberia-jeranbuq/shared";
 import type {
   ServiceFormData,
@@ -28,7 +28,7 @@ import type { Service } from "@barberia-jeranbuq/database";
 export async function createServiceAction(
   input: unknown
 ): Promise<ApiResponse<Service>> {
-  const parsed = CreateServiceSchema.safeParse(input);
+  const parsed = createServiceSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "VALIDATION_ERROR" };
   }
@@ -53,7 +53,7 @@ export async function createServiceAction(
 export async function updateServiceAction(
   input: unknown
 ): Promise<ApiResponse<Service>> {
-  const parsed = UpdateServiceSchema.safeParse(input);
+  const parsed = updateServiceSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "VALIDATION_ERROR" };
   }

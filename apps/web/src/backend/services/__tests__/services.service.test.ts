@@ -33,9 +33,9 @@ const mockService = {
   id: "cmc0000000000000000000001",
   name: "Corte Clásico",
   description: null,
-  durationMinutes: 30,
+  durationMin: 30,
   price: 25000,
-  isActive: true,
+  active: true,
   createdAt: new Date("2026-01-01"),
   updatedAt: new Date("2026-01-01"),
 };
@@ -53,7 +53,7 @@ describe("createService", () => {
 
     const result = await createService({
       name: "Corte Clásico",
-      durationMinutes: 30,
+      durationMin: 30,
       price: 25000,
     });
 
@@ -64,7 +64,7 @@ describe("createService", () => {
     expect(mockPrismaService.create).toHaveBeenCalledWith({
       data: {
         name: "Corte Clásico",
-        durationMinutes: 30,
+        durationMin: 30,
         price: 25000,
       },
     });
@@ -75,7 +75,7 @@ describe("createService", () => {
 
     const result = await createService({
       name: "Corte Clásico",
-      durationMinutes: 30,
+      durationMin: 30,
       price: 25000,
     });
 
@@ -131,8 +131,8 @@ describe("deactivateService", () => {
     vi.clearAllMocks();
   });
 
-  it("sets isActive=false and returns ok", async () => {
-    const deactivatedService = { ...mockService, isActive: false };
+  it("sets active=false and returns ok", async () => {
+    const deactivatedService = { ...mockService, active: false };
     mockPrismaService.findUnique.mockResolvedValueOnce(mockService);
     mockPrismaService.update.mockResolvedValueOnce(deactivatedService);
 
@@ -141,12 +141,12 @@ describe("deactivateService", () => {
     expect(result).toEqual({ ok: true, data: deactivatedService });
     expect(mockPrismaService.update).toHaveBeenCalledWith({
       where: { id: mockService.id },
-      data: { isActive: false },
+      data: { active: false },
     });
   });
 
   it("is idempotent on already-inactive service (returns ok)", async () => {
-    const inactiveService = { ...mockService, isActive: false };
+    const inactiveService = { ...mockService, active: false };
     mockPrismaService.findUnique.mockResolvedValueOnce(inactiveService);
     mockPrismaService.update.mockResolvedValueOnce(inactiveService);
 
@@ -155,7 +155,7 @@ describe("deactivateService", () => {
     expect(result).toEqual({ ok: true, data: inactiveService });
     expect(mockPrismaService.update).toHaveBeenCalledWith({
       where: { id: mockService.id },
-      data: { isActive: false },
+      data: { active: false },
     });
   });
 });
@@ -170,7 +170,7 @@ describe("getServices", () => {
   it("getServices(true) returns all services including inactive", async () => {
     const allServices = [
       mockService,
-      { ...mockService, id: "cmc0000000000000000000002", isActive: false },
+      { ...mockService, id: "cmc0000000000000000000002", active: false },
     ];
     mockPrismaService.findMany.mockResolvedValueOnce(allServices);
 
@@ -188,7 +188,7 @@ describe("getServices", () => {
 
     expect(result).toEqual({ ok: true, data: activeServices });
     expect(mockPrismaService.findMany).toHaveBeenCalledWith({
-      where: { isActive: true },
+      where: { active: true },
     });
   });
 });

@@ -45,9 +45,9 @@ const mockService = {
   id: "cmc0000000000000000000001",
   name: "Corte Clásico",
   description: null,
-  durationMinutes: 30,
+  durationMin: 30,
   price: 25000,
-  isActive: true,
+  active: true,
   createdAt: new Date("2026-01-01"),
   updatedAt: new Date("2026-01-01"),
 };
@@ -68,7 +68,7 @@ describe("createServiceAction", () => {
 
     await createServiceAction({
       name: "Corte Clásico",
-      durationMinutes: 30,
+      durationMin: 30,
       price: 25000,
     });
 
@@ -81,13 +81,13 @@ describe("createServiceAction", () => {
 
     const result = await createServiceAction({
       name: "Corte Clásico",
-      durationMinutes: 30,
+      durationMin: 30,
       price: 25000,
     });
 
     expect(mockServiceLayer.createService).toHaveBeenCalledWith({
       name: "Corte Clásico",
-      durationMinutes: 30,
+      durationMin: 30,
       price: 25000,
     });
     expect(result).toEqual(serviceResult);
@@ -96,7 +96,7 @@ describe("createServiceAction", () => {
   it("Zod parse failure returns { ok: false, error: 'VALIDATION_ERROR' } without reaching service", async () => {
     const result = await createServiceAction({
       name: "",
-      durationMinutes: 30,
+      durationMin: 30,
       price: 25000,
     });
 
@@ -164,7 +164,7 @@ describe("deactivateServiceAction", () => {
   it("calls requireAdmin() before processing", async () => {
     mockServiceLayer.deactivateService.mockResolvedValueOnce({
       ok: true,
-      data: { ...mockService, isActive: false },
+      data: { ...mockService, active: false},
     });
 
     await deactivateServiceAction(mockService.id);
@@ -173,7 +173,7 @@ describe("deactivateServiceAction", () => {
   });
 
   it("valid id delegates to service layer and returns result", async () => {
-    const deactivated = { ...mockService, isActive: false };
+    const deactivated = { ...mockService, active: false};
     const serviceResult = { ok: true, data: deactivated };
     mockServiceLayer.deactivateService.mockResolvedValueOnce(serviceResult);
 

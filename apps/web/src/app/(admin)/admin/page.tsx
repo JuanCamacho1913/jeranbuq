@@ -12,8 +12,8 @@ export default async function AdminDashboardPage() {
   const session = await auth();
 
   const [activeServicesCount, configuredDays] = await Promise.all([
-    prisma.service.count({ where: { isActive: true } }),
-    prisma.adminAvailability.count({ where: { isActive: true } }),
+    prisma.service.count({ where: { active: true } }),
+    prisma.adminAvailability.count({ where: { active: true } }),
   ]);
 
   return (

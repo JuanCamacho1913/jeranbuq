@@ -35,7 +35,7 @@ export async function getSchedule(): Promise<
         startTime: DEFAULT_START_TIME,
         endTime: DEFAULT_END_TIME,
         slotMinutes: DEFAULT_SLOT_MINUTES,
-        isActive: false,
+        active: false,
       },
       update: {},
     });
@@ -69,13 +69,13 @@ export async function upsertSchedule(
           startTime: day.startTime,
           endTime: day.endTime,
           slotMinutes: day.slotMinutes,
-          isActive: day.isActive,
+          active: day.active,
         },
         update: {
           startTime: day.startTime,
           endTime: day.endTime,
           slotMinutes: day.slotMinutes,
-          isActive: day.isActive,
+          active: day.active,
         },
       })
     )

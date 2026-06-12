@@ -40,7 +40,7 @@ const FormDaySchema = z.object({
   startTime: z.string().regex(/^\d{2}:\d{2}$/),
   endTime: z.string().regex(/^\d{2}:\d{2}$/),
   slotMinutes: z.number().int().min(10).max(120),
-  isActive: z.boolean(),
+  active: z.boolean(),
 });
 
 // Wrap the top-level array in an object for react-hook-form compatibility
@@ -64,7 +64,7 @@ function buildDefaultDays(
       startTime: existing?.startTime ?? "07:00",
       endTime: existing?.endTime ?? "19:00",
       slotMinutes: existing?.slotMinutes ?? 30,
-      isActive: existing?.isActive ?? (i !== 0), // Sunday off by default
+      active: existing?.active ?? (i !== 0), // Sunday off by default
     };
   });
 }
@@ -103,7 +103,7 @@ export function WeeklyScheduleForm({ defaultValues }: WeeklyScheduleFormProps) {
 
   const { isSubmitting } = form.formState;
 
-  // Watch isActive per day to conditionally disable time inputs
+  // Watch active per day to conditionally disable time inputs
   const watchedDays = form.watch("days");
 
   async function onSubmit(values: FormValues) {
@@ -159,7 +159,7 @@ export function WeeklyScheduleForm({ defaultValues }: WeeklyScheduleFormProps) {
         {/* Day rows */}
         <div className="space-y-3">
           {fields.map((field, index) => {
-            const isActive = watchedDays[index]?.isActive ?? false;
+            const isActive = watchedDays[index]?.active ?? false;
 
             return (
               <div
@@ -174,7 +174,7 @@ export function WeeklyScheduleForm({ defaultValues }: WeeklyScheduleFormProps) {
                 {/* Active switch */}
                 <FormField
                   control={form.control}
-                  name={`days.${index}.isActive`}
+                  name={`days.${index}.active`}
                   render={({ field: switchField }) => (
                     <FormItem className="flex items-center space-x-2 space-y-0">
                       <FormControl>

@@ -20,14 +20,14 @@ async function main() {
         startTime: "07:00",
         endTime: "19:00",
         slotMinutes: 30,
-        isActive: true,
+        active: true,
       },
       create: {
         dayOfWeek: day.dayOfWeek,
         startTime: "07:00",
         endTime: "19:00",
         slotMinutes: 30,
-        isActive: true,
+        active: true,
       },
     });
     console.log(`Upserted availability for ${day.label}`);
@@ -38,19 +38,19 @@ async function main() {
     {
       name: "Corte Clásico",
       description: "Corte de cabello clásico con tijera y máquina",
-      durationMinutes: 30,
+      durationMin: 30,
       price: 25000,
     },
     {
       name: "Barba",
       description: "Arreglo y delineado de barba",
-      durationMinutes: 20,
+      durationMin: 20,
       price: 15000,
     },
     {
       name: "Corte + Barba",
       description: "Combo corte de cabello y arreglo de barba",
-      durationMinutes: 50,
+      durationMin: 50,
       price: 35000,
     },
   ];
@@ -60,16 +60,16 @@ async function main() {
       where: { name: service.name },
       update: {
         description: service.description,
-        durationMinutes: service.durationMinutes,
+        durationMin: service.durationMin,
         price: service.price,
-        isActive: true,
+        active: true,
       },
       create: {
         name: service.name,
         description: service.description,
-        durationMinutes: service.durationMinutes,
+        durationMin: service.durationMin,
         price: service.price,
-        isActive: true,
+        active: true,
       },
     });
     console.log(`Upserted service: ${service.name}`);

@@ -42,7 +42,7 @@ const mockDayRow = (dayOfWeek: number, overrides = {}) => ({
   startTime: "07:00",
   endTime: "19:00",
   slotMinutes: 30,
-  isActive: true,
+  active: true,
   ...overrides,
 });
 
@@ -70,7 +70,7 @@ describe("getSchedule", () => {
       [1, 2, 3, 4, 5, 6].map((d) => mockDayRow(d))
     );
     mockPrismaAdminAvailability.upsert.mockResolvedValue(
-      mockDayRow(0, { isActive: false })
+      mockDayRow(0, { active: false })
     );
 
     const result = await getSchedule();
@@ -84,7 +84,7 @@ describe("getSchedule", () => {
     // No rows exist at all
     mockPrismaAdminAvailability.findMany.mockResolvedValueOnce([]);
     mockPrismaAdminAvailability.upsert.mockResolvedValue(
-      mockDayRow(0, { isActive: false })
+      mockDayRow(0, { active: false })
     );
 
     await getSchedule();
@@ -107,7 +107,7 @@ describe("upsertSchedule", () => {
       startTime: "07:00",
       endTime: "19:00",
       slotMinutes: 30,
-      isActive: i !== 0, // Sunday inactive
+      active: i !== 0, // Sunday inactive
     }));
 
     mockPrismaAdminAvailability.upsert.mockResolvedValue(mockDayRow(0));
