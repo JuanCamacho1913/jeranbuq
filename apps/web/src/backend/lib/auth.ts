@@ -90,4 +90,4 @@ const authResult: NextAuthResult = NextAuth({
   },
 });
 
-export const { handlers, auth, signIn, signOut } = authResult;
+export const { handlers, auth, signIn, signOut, unstable_update } = authResult;
