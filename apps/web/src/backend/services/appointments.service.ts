@@ -51,7 +51,7 @@ export async function createAppointment(
   serviceId: string,
   startAt: Date
 ): Promise<ApiResponse<Appointment>> {
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx): Promise<ApiResponse<Appointment>> => {
     // 1. Fetch service and verify it exists and is active
     const service = await tx.service.findUnique({ where: { id: serviceId } });
 
@@ -93,7 +93,7 @@ export async function createAppointment(
   // Send emails after the transaction commits — fire-and-forget
   if (result.ok) {
     const appointment = await prisma.appointment.findUnique({
-      where: { id: result.data.id },
+      where: { id: result.data!.id },
       include: { user: true, service: true },
     });
 
