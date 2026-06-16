@@ -118,13 +118,27 @@ export function BookingFlow({
     setSelectedSlot(null);
   }
 
-  // SLOT_UNAVAILABLE: go back to step 1, clear selection
+  // SLOT_UNAVAILABLE: go back to step 1, show error, re-fetch slots without clearing the error
   function handleSlotUnavailable() {
     setSelectedSlot(null);
     setStep(1);
-    // Re-fetch slots to refresh availability
+    setSlotsError("El horario seleccionado ya fue tomado. Por favor elegí otro.");
+    // Re-fetch inline: do NOT call handleDateSelect because it clears slotsError
     if (selectedDate) {
-      void handleDateSelect(selectedDate);
+      setSlotsLoading(true);
+      fetch(
+        `/api/v1/availability?serviceId=${encodeURIComponent(service.id)}&date=${encodeURIComponent(selectedDate)}`
+      )
+        .then((res) => res.json())
+        .then((json: { ok: boolean; data?: { slots: SlotItem[] } }) => {
+          setSlots(json.data?.slots ?? []);
+        })
+        .catch(() => {
+          setSlotsError("Error de red. Por favor verificá tu conexión.");
+        })
+        .finally(() => {
+          setSlotsLoading(false);
+        });
     }
   }
 
