@@ -52,6 +52,17 @@ export default auth(function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|login|$).*)",
+    /*
+     * Match all request paths EXCEPT:
+     * - /api/v1/* (API routes handle auth themselves via requireAuth)
+     * - _next/static, _next/image (Next.js internals)
+     * - favicon.ico (static asset)
+     * - /login (auth page — must be public)
+     * - $ (root path — handled by page.tsx role redirect)
+     *
+     * /(admin)/*, /(auth)/*, /(protected)/*, /(client)/* ARE matched
+     * so the middleware auth guard runs on them.
+     */
+    "/((?!api/v1|_next/static|_next/image|favicon.ico|login|$).*)",
   ],
 };
