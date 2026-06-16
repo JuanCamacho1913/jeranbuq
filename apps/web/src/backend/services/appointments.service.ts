@@ -1,7 +1,15 @@
+import React from "react";
 import { prisma } from "@barberia-jeranbuq/database";
 import type { AppointmentStatus, Appointment } from "@barberia-jeranbuq/database";
 import type { ApiResponse } from "@barberia-jeranbuq/shared";
 import { CANCEL_HOURS } from "@barberia-jeranbuq/shared";
+import { sendEmail } from "../lib/email";
+import {
+  BookingCreated,
+  AdminNewBooking,
+  AppointmentConfirmed,
+  AppointmentCancelled,
+} from "../emails";
 
 // ─── Status Transition Map ────────────────────────────────────────────────────
 // Note: CANCELLED transitions are handled exclusively by cancel functions.
@@ -43,7 +51,7 @@ export async function createAppointment(
   serviceId: string,
   startAt: Date
 ): Promise<ApiResponse<Appointment>> {
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     // 1. Fetch service and verify it exists and is active
     const service = await tx.service.findUnique({ where: { id: serviceId } });
 
@@ -81,6 +89,48 @@ export async function createAppointment(
 
     return { ok: true, data: appointment };
   });
+
+  // Send emails after the transaction commits — fire-and-forget
+  if (result.ok) {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: result.data.id },
+      include: { user: true, service: true },
+    });
+
+    if (appointment) {
+      const { user, service } = appointment as typeof appointment & {
+        user: { name: string; email: string };
+        service: { name: string };
+      };
+
+      void sendEmail({
+        to: user.email,
+        subject: "Solicitud de cita recibida — Barbería JeranBuq",
+        react: React.createElement(BookingCreated, {
+          clientName: user.name,
+          serviceName: service.name,
+          startAt: appointment.startAt,
+          endAt: appointment.endAt,
+          appointmentId: appointment.id,
+        }),
+      });
+
+      void sendEmail({
+        to: process.env.ADMIN_NOTIFICATION_EMAIL!,
+        subject: "Nueva solicitud de cita",
+        react: React.createElement(AdminNewBooking, {
+          clientName: user.name,
+          clientEmail: user.email,
+          serviceName: service.name,
+          startAt: appointment.startAt,
+          endAt: appointment.endAt,
+          appointmentId: appointment.id,
+        }),
+      });
+    }
+  }
+
+  return result;
 }
 
 // ─── cancelAppointment ────────────────────────────────────────────────────────
@@ -125,6 +175,30 @@ export async function cancelAppointment(
     data: { status: "CANCELLED" },
   });
 
+  // Notify admin that the client cancelled — fire-and-forget
+  const appointmentWithRelations = await prisma.appointment.findUnique({
+    where: { id: appointmentId },
+    include: { user: true, service: true },
+  });
+
+  if (appointmentWithRelations) {
+    const { user, service } = appointmentWithRelations as typeof appointmentWithRelations & {
+      user: { name: string; email: string };
+      service: { name: string };
+    };
+
+    void sendEmail({
+      to: process.env.ADMIN_NOTIFICATION_EMAIL!,
+      subject: "Un cliente canceló su cita",
+      react: React.createElement(AppointmentCancelled, {
+        recipientName: user.name,
+        serviceName: service.name,
+        startAt: appointmentWithRelations.startAt,
+        cancelledBy: "client",
+      }),
+    });
+  }
+
   return { ok: true, data: cancelled };
 }
 
@@ -161,6 +235,31 @@ export async function cancelAppointmentAdmin(
     },
   });
 
+  // Notify client that admin cancelled — fire-and-forget
+  const appointmentWithRelations = await prisma.appointment.findUnique({
+    where: { id: appointmentId },
+    include: { user: true, service: true },
+  });
+
+  if (appointmentWithRelations) {
+    const { user, service } = appointmentWithRelations as typeof appointmentWithRelations & {
+      user: { name: string; email: string };
+      service: { name: string };
+    };
+
+    void sendEmail({
+      to: user.email,
+      subject: "Tu cita fue cancelada — Barbería JeranBuq",
+      react: React.createElement(AppointmentCancelled, {
+        recipientName: user.name,
+        serviceName: service.name,
+        startAt: appointmentWithRelations.startAt,
+        cancelledBy: "admin",
+        ...(cancellationReason !== undefined && { cancellationReason }),
+      }),
+    });
+  }
+
   return { ok: true, data: cancelled };
 }
 
@@ -193,6 +292,33 @@ export async function updateStatus(
     where: { id: appointmentId },
     data: { status },
   });
+
+  // Send confirmation email to client when appointment is CONFIRMED — fire-and-forget
+  if (status === "CONFIRMED") {
+    const appointmentWithRelations = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: { user: true, service: true },
+    });
+
+    if (appointmentWithRelations) {
+      const { user, service } = appointmentWithRelations as typeof appointmentWithRelations & {
+        user: { name: string; email: string };
+        service: { name: string };
+      };
+
+      void sendEmail({
+        to: user.email,
+        subject: "¡Tu cita fue confirmada! — Barbería JeranBuq",
+        react: React.createElement(AppointmentConfirmed, {
+          clientName: user.name,
+          serviceName: service.name,
+          startAt: appointmentWithRelations.startAt,
+          endAt: appointmentWithRelations.endAt,
+          appointmentId: appointmentWithRelations.id,
+        }),
+      });
+    }
+  }
 
   return { ok: true, data: updated };
 }
