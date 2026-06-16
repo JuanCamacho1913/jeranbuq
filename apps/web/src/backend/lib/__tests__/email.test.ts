@@ -88,4 +88,19 @@ describe("sendEmail", () => {
     expect(consoleSpy).toHaveBeenCalledOnce();
     consoleSpy.mockRestore();
   });
+
+  it("calls console.error and does not send when RESEND_API_KEY is absent", async () => {
+    delete process.env.RESEND_API_KEY;
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await sendEmail({
+      to: "client@example.com",
+      subject: "Test",
+      react: fakeElement,
+    });
+
+    expect(consoleSpy).toHaveBeenCalledOnce();
+    expect(mockSend).not.toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
 });
