@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Scissors, Calendar, Menu } from "lucide-react";
+import { LayoutDashboard, Scissors, Calendar, CalendarDays, Menu } from "lucide-react";
 import { Button } from "@/frontend/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/frontend/components/ui/sheet";
 import { Separator } from "@/frontend/components/ui/separator";
@@ -13,6 +13,7 @@ import { cn } from "@/frontend/lib/utils";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/admin/servicios", label: "Servicios", icon: Scissors },
   { href: "/admin/disponibilidad", label: "Disponibilidad", icon: Calendar },
 ] as const;
