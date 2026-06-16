@@ -85,7 +85,7 @@ export function ClientHeader() {
         </Link>
 
         {/* Desktop nav links */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav aria-label="Navegación principal" className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (
             <NavLink
               key={item.href}
@@ -128,7 +128,7 @@ export function ClientHeader() {
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="md:hidden border-t border-border bg-background px-4 pb-4">
-          <nav className="flex flex-col gap-1 pt-3">
+          <nav aria-label="Menú móvil" className="flex flex-col gap-1 pt-3">
             {navItems.map((item) => (
               <NavLink
                 key={item.href}

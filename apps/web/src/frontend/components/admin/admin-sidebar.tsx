@@ -90,7 +90,7 @@ export function AdminSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex h-screen w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+      <aside aria-label="Navegación de administrador" className="hidden md:flex h-screen w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
         <div className="flex h-14 items-center px-4">
           <span className="text-sm font-semibold text-sidebar-foreground">
             Barbería Jeranbuq

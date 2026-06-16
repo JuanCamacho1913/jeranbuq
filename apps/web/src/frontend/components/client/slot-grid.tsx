@@ -48,7 +48,11 @@ export function SlotGrid({
 }) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+      <div
+        role="status"
+        aria-label="Cargando horarios disponibles"
+        className="grid grid-cols-3 gap-2 sm:grid-cols-4"
+      >
         {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={i}

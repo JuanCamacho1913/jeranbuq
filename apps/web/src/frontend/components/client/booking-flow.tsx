@@ -17,24 +17,27 @@ type Step = 0 | 1 | 2;
 
 function StepBreadcrumb({ current }: { current: Step }) {
   return (
-    <div className="flex items-center gap-2 text-sm">
-      {STEPS.map((label, i) => (
-        <div key={label} className="flex items-center gap-2">
-          {i > 0 && <span className="text-muted-foreground">/</span>}
-          <span
-            className={
-              i === current
-                ? "font-semibold text-foreground"
-                : i < current
-                ? "text-muted-foreground"
-                : "text-muted-foreground/50"
-            }
-          >
-            {label}
-          </span>
-        </div>
-      ))}
-    </div>
+    <nav aria-label="Pasos del proceso de reserva">
+      <ol className="flex items-center gap-2 text-sm list-none m-0 p-0">
+        {STEPS.map((label, i) => (
+          <li key={label} className="flex items-center gap-2">
+            {i > 0 && <span className="text-muted-foreground" aria-hidden="true">/</span>}
+            <span
+              aria-current={i === current ? "step" : undefined}
+              className={
+                i === current
+                  ? "font-semibold text-foreground"
+                  : i < current
+                  ? "text-muted-foreground"
+                  : "text-muted-foreground/50"
+              }
+            >
+              {label}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </nav>
   );
 }
 

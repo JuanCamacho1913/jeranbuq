@@ -114,24 +114,25 @@ export function AgendaClient({
       ) : (
         <div className="rounded-lg border border-border overflow-x-auto">
           <table className="w-full text-left">
+            <caption className="sr-only">Agenda de citas</caption>
             <thead>
               <tr className="border-b border-border bg-muted/40">
-                <th className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <th scope="col" className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Hora
                 </th>
-                <th className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <th scope="col" className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Cliente
                 </th>
-                <th className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <th scope="col" className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Servicio
                 </th>
-                <th className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <th scope="col" className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Precio
                 </th>
-                <th className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <th scope="col" className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Estado
                 </th>
-                <th className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <th scope="col" className="py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Acciones
                 </th>
               </tr>
