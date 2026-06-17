@@ -1,6 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { completeOnboarding } from "@/backend/actions/auth.actions";
 import {
   type ActionState,
@@ -15,12 +17,23 @@ const errorMessages: Record<string, string> = {
 };
 
 export function OnboardingForm() {
+  const router = useRouter();
   const [state, formAction, isPending] = useActionState(
     async (_prev: ActionState, formData: FormData): Promise<ActionState> => {
       return completeOnboarding(formData);
     },
     initialActionState
   );
+
+  // After a successful save, refresh the router so the middleware picks up the
+  // updated JWT (unstable_update sets the cookie but redirect() in a Server
+  // Action can race against it — client-side navigation is reliable).
+  useEffect(() => {
+    if (state.success) {
+      router.refresh();
+      router.push("/inicio");
+    }
+  }, [state.success, router]);
 
   return (
     <form action={formAction} className="space-y-4">

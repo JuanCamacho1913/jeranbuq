@@ -2,7 +2,6 @@
 
 import { timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { auth, unstable_update } from "@/backend/lib/auth";
 import { prisma } from "@barberia-jeranbuq/database";
 import {
@@ -80,7 +79,7 @@ export async function completeOnboarding(
 
   // Prevent re-submission if onboarding was already completed
   if (session.user.onboardingCompletedAt) {
-    redirect("/");
+    return { success: true };
   }
 
   const parsed = OnboardingSchema.safeParse({
@@ -103,5 +102,5 @@ export async function completeOnboarding(
     user: { phone, onboardingCompletedAt: onboardingCompletedAt.toISOString() },
   });
 
-  redirect("/");
+  return { success: true };
 }

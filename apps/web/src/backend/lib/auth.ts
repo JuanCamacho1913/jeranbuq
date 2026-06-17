@@ -69,12 +69,20 @@ const authResult: NextAuthResult = NextAuth({
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
+        // Initial sign-in: populate token from the user record
         token.id = user.id;
         token.role = user.role ?? null;
         token.phone = user.phone ?? null;
         token.onboardingCompletedAt = user.onboardingCompletedAt ?? null;
+      }
+      if (trigger === "update" && session?.user) {
+        // unstable_update() call: merge only the provided fields into the token
+        if (session.user.phone != null) token.phone = session.user.phone;
+        if (session.user.onboardingCompletedAt != null) {
+          token.onboardingCompletedAt = session.user.onboardingCompletedAt;
+        }
       }
       return token;
     },

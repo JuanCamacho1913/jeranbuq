@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Scissors, Calendar, CalendarDays, Menu } from "lucide-react";
+import { LayoutDashboard, Scissors, Calendar, CalendarDays, Menu, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { Button } from "@/frontend/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/frontend/components/ui/sheet";
 import { Separator } from "@/frontend/components/ui/separator";
@@ -97,7 +98,21 @@ export function AdminSidebar() {
           </span>
         </div>
         <Separator />
-        <SidebarNav />
+        <div className="flex-1">
+          <SidebarNav />
+        </div>
+        <Separator />
+        <div className="p-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            onClick={() => signOut({ callbackUrl: "/login" })}
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            Cerrar sesión
+          </Button>
+        </div>
       </aside>
 
       {/* Mobile hamburger + Sheet drawer */}
@@ -108,14 +123,28 @@ export function AdminSidebar() {
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-56 p-0 bg-sidebar">
+          <SheetContent side="left" className="w-56 p-0 bg-sidebar flex flex-col">
             <div className="flex h-14 items-center px-4">
               <span className="text-sm font-semibold text-sidebar-foreground">
                 Barbería Jeranbuq
               </span>
             </div>
             <Separator />
-            <SidebarNav onNavigate={() => setMobileOpen(false)} />
+            <div className="flex-1">
+              <SidebarNav onNavigate={() => setMobileOpen(false)} />
+            </div>
+            <Separator />
+            <div className="p-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+              >
+                <LogOut className="h-4 w-4 shrink-0" />
+                Cerrar sesión
+              </Button>
+            </div>
           </SheetContent>
         </Sheet>
       </div>
