@@ -32,7 +32,7 @@ export function DisponibilidadClient({
         <div>
           <h2 className="text-lg font-semibold">Horario Semanal</h2>
           <p className="text-sm text-muted-foreground">
-            Configure the working hours for each day of the week.
+            Configurá el horario de atención para cada día de la semana.
           </p>
         </div>
         <WeeklyScheduleForm defaultValues={schedule} />
@@ -45,13 +45,13 @@ export function DisponibilidadClient({
         <div>
           <h2 className="text-lg font-semibold">Bloques de Tiempo</h2>
           <p className="text-sm text-muted-foreground">
-            Block specific dates or time ranges (vacations, lunch breaks, etc.).
+            Bloqueá fechas o rangos horarios específicos (vacaciones, descansos, etc.).
           </p>
         </div>
 
         {/* Create form */}
-        <div className="rounded-md border p-4">
-          <h3 className="text-sm font-medium mb-4">Add time block</h3>
+        <div className="rounded-xl bg-[#1E1E1E] p-4">
+          <h3 className="text-sm font-medium mb-4">Agregar bloque</h3>
           <TimeBlockForm />
         </div>
 

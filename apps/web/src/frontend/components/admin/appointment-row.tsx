@@ -159,7 +159,7 @@ export function AppointmentRow({
 
   return (
     <>
-      <tr className="border-b border-border last:border-0">
+      <tr className="border-b border-white/[0.08] last:border-0">
         {/* Time */}
         <td className="py-3 px-4">
           <div className="flex items-center gap-1.5 text-sm font-medium">
@@ -207,7 +207,7 @@ export function AppointmentRow({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-green-700 border-green-400 hover:bg-green-50 hover:text-green-800"
+                    className="text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300"
                     onClick={() => handleAction("CONFIRMED")}
                     disabled={actionLoading !== null}
                   >
@@ -220,7 +220,7 @@ export function AppointmentRow({
                     <Button
                       size="sm"
                       variant="outline"
-                      className="text-blue-700 border-blue-400 hover:bg-blue-50 hover:text-blue-800"
+                      className="text-blue-400 border-blue-500/30 hover:bg-blue-500/10 hover:text-blue-300"
                       onClick={() => handleAction("COMPLETED")}
                       disabled={actionLoading !== null}
                     >
@@ -229,7 +229,7 @@ export function AppointmentRow({
                     <Button
                       size="sm"
                       variant="outline"
-                      className="text-muted-foreground"
+                      className="text-[#9CA3AF] border-white/[0.15] hover:bg-white/[0.05]"
                       onClick={() => handleAction("NO_SHOW")}
                       disabled={actionLoading !== null}
                     >

@@ -30,7 +30,7 @@ export default async function DisponibilidadPage() {
 
   return (
     <div className="space-y-8 p-6">
-      <h1 className="text-2xl font-bold tracking-tight">Disponibilidad</h1>
+      <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Disponibilidad</h1>
       <DisponibilidadClient
         schedule={schedule}
         timeBlocks={upcomingBlocks}

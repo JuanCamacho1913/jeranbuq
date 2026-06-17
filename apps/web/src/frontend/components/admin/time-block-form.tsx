@@ -74,8 +74,8 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
       if (!result.ok) {
         setServerError(
           result.error === "VALIDATION_ERROR"
-            ? "Invalid data. Please check the fields."
-            : (result.error ?? "An unexpected error occurred.")
+            ? "Datos inválidos. Revisá los campos."
+            : (result.error ?? "Error inesperado. Intentá de nuevo.")
         );
         return;
       }
@@ -111,8 +111,8 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
       if (!result.ok) {
         setServerError(
           result.error === "VALIDATION_ERROR"
-            ? "Invalid data. Please check the fields."
-            : (result.error ?? "An unexpected error occurred.")
+            ? "Datos inválidos. Revisá los campos."
+            : (result.error ?? "Error inesperado. Intentá de nuevo.")
         );
         return;
       }
@@ -136,7 +136,7 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
             name="date"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date</FormLabel>
+                <FormLabel>Fecha</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
                 </FormControl>
@@ -152,7 +152,7 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
               name="startTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Start time</FormLabel>
+                  <FormLabel>Hora inicio</FormLabel>
                   <FormControl>
                     <Input type="time" {...field} />
                   </FormControl>
@@ -167,7 +167,7 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
               name="endTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>End time</FormLabel>
+                  <FormLabel>Hora fin</FormLabel>
                   <FormControl>
                     <Input type="time" {...field} />
                   </FormControl>
@@ -184,14 +184,14 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Reason{" "}
+                  Motivo{" "}
                   <span className="text-muted-foreground font-normal">
-                    (optional)
+                    (opcional)
                   </span>
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="e.g. Vacation, Lunch break"
+                    placeholder="Ej. Vacaciones, almuerzo"
                     {...field}
                     value={field.value ?? ""}
                   />
@@ -212,7 +212,7 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
               disabled={isBusy}
               onClick={form.handleSubmit(handleCreate)}
             >
-              {isCreating ? "Creating…" : "Crear Bloque"}
+              {isCreating ? "Creando…" : "Crear bloque"}
             </Button>
 
             {/* Repeat for weekdays */}
@@ -222,7 +222,7 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
               disabled={isBusy}
               onClick={handleRepeatClick}
             >
-              {isRepeating ? "Repeating…" : "Repetir para días hábiles"}
+              {isRepeating ? "Repitiendo…" : "Repetir para días hábiles"}
             </Button>
           </div>
         </form>
@@ -236,10 +236,10 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
           </DialogHeader>
 
           <p className="text-sm text-muted-foreground">
-            This will create one time block per weekday (Monday–Friday) for the
-            week containing{" "}
-            <strong>{pendingRepeat?.date ?? ""}</strong>, from{" "}
-            <strong>{pendingRepeat?.startTime}</strong> to{" "}
+            Se creará un bloque por cada día hábil (lunes a viernes) de la
+            semana que contiene el{" "}
+            <strong>{pendingRepeat?.date ?? ""}</strong>, de{" "}
+            <strong>{pendingRepeat?.startTime}</strong> a{" "}
             <strong>{pendingRepeat?.endTime}</strong>
             {pendingRepeat?.reason ? (
               <>
@@ -247,8 +247,7 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
                 — <em>{pendingRepeat.reason}</em>
               </>
             ) : null}
-            . Days that already have a block for the same time range will be
-            skipped.
+            . Los días que ya tengan un bloque en ese horario serán ignorados.
           </p>
 
           <DialogFooter className="gap-2">
@@ -256,9 +255,9 @@ export function TimeBlockForm({ onSuccess }: TimeBlockFormProps) {
               variant="outline"
               onClick={() => setConfirmOpen(false)}
             >
-              Cancel
+              Cancelar
             </Button>
-            <Button onClick={handleRepeatConfirm}>Confirm</Button>
+            <Button onClick={handleRepeatConfirm}>Confirmar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

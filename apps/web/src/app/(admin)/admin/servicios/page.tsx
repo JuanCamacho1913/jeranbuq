@@ -13,8 +13,8 @@ export default async function ServiciosPage() {
   const services = result.ok ? (result.data ?? []) : [];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Servicios</h1>
+    <div className="space-y-6 p-6">
+      <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Servicios</h1>
       <ServiciosClient services={services} />
     </div>
   );

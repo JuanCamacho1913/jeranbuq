@@ -121,13 +121,13 @@ export function WeeklyScheduleForm({ defaultValues }: WeeklyScheduleFormProps) {
     if (!result.ok) {
       setServerError(
         result.error === "VALIDATION_ERROR"
-          ? "Invalid schedule data. Please check the times."
-          : (result.error ?? "An unexpected error occurred.")
+          ? "Datos inválidos. Revisá los horarios."
+          : (result.error ?? "Error inesperado. Intentá de nuevo.")
       );
       return;
     }
 
-    setSuccessMessage("Schedule saved successfully.");
+    setSuccessMessage("Horario guardado correctamente.");
   }
 
   return (
@@ -140,7 +140,7 @@ export function WeeklyScheduleForm({ defaultValues }: WeeklyScheduleFormProps) {
             name="slotMinutes"
             render={({ field }) => (
               <FormItem className="w-48">
-                <FormLabel>Slot duration (minutes)</FormLabel>
+                <FormLabel>Duración del turno (min)</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -164,7 +164,7 @@ export function WeeklyScheduleForm({ defaultValues }: WeeklyScheduleFormProps) {
             return (
               <div
                 key={field.id}
-                className="grid grid-cols-[140px_auto_1fr_1fr] items-center gap-4 rounded-md border px-4 py-3"
+                className="grid grid-cols-[140px_auto_1fr_1fr] items-center gap-4 rounded-xl bg-[#1E1E1E] px-4 py-3"
               >
                 {/* Day name */}
                 <span className="text-sm font-medium">
@@ -181,6 +181,7 @@ export function WeeklyScheduleForm({ defaultValues }: WeeklyScheduleFormProps) {
                         <Switch
                           checked={switchField.value}
                           onCheckedChange={switchField.onChange}
+                          className="data-[state=unchecked]:bg-white/20 data-[state=checked]:bg-gold-500"
                         />
                       </FormControl>
                     </FormItem>
@@ -194,7 +195,7 @@ export function WeeklyScheduleForm({ defaultValues }: WeeklyScheduleFormProps) {
                   render={({ field: timeField }) => (
                     <FormItem>
                       <FormLabel className="text-xs text-muted-foreground">
-                        Start
+                        Inicio
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -216,7 +217,7 @@ export function WeeklyScheduleForm({ defaultValues }: WeeklyScheduleFormProps) {
                   render={({ field: timeField }) => (
                     <FormItem>
                       <FormLabel className="text-xs text-muted-foreground">
-                        End
+                        Fin
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -246,7 +247,7 @@ export function WeeklyScheduleForm({ defaultValues }: WeeklyScheduleFormProps) {
         {/* Submit */}
         <div className="flex justify-end">
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving…" : "Save schedule"}
+            {isSubmitting ? "Guardando…" : "Guardar horario"}
           </Button>
         </div>
       </form>

@@ -20,7 +20,7 @@ function formatCOP(price: number): string {
 
 export function ServiceCard({ service }: { service: Service }) {
   return (
-    <Card className="group flex flex-col border-gold-500/15 bg-surface-200 transition-all duration-300 hover:border-gold-500/40 hover:shadow-[0_0_30px_rgba(201,162,39,0.08)]">
+    <Card className="group flex flex-col border-white/[0.08] bg-[#1E1E1E] transition-all duration-300 hover:border-gold-500/40 hover:shadow-[0_0_30px_rgba(201,162,39,0.08)]">
       <CardHeader>
         <CardTitle className="font-display text-base text-foreground">
           {service.name}

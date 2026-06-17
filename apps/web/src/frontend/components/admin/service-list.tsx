@@ -33,7 +33,7 @@ function ServiceRow({ service }: { service: Service }) {
 
   function handleDeactivate() {
     const confirmed = window.confirm(
-      `Deactivate "${service.name}"? It will no longer appear for booking.`
+      `¿Desactivar "${service.name}"? Ya no aparecerá en el sistema de reservas.`
     );
     if (!confirmed) return;
 
@@ -60,7 +60,7 @@ function ServiceRow({ service }: { service: Service }) {
       {/* Status */}
       <TableCell>
         <Badge variant={service.active ? "default" : "secondary"}>
-          {service.active ? "Active" : "Inactive"}
+          {service.active ? "Activo" : "Inactivo"}
         </Badge>
       </TableCell>
 
@@ -73,7 +73,7 @@ function ServiceRow({ service }: { service: Service }) {
             defaultValues={service}
             trigger={
               <Button variant="outline" size="sm">
-                Edit
+                Editar
               </Button>
             }
           />
@@ -86,7 +86,7 @@ function ServiceRow({ service }: { service: Service }) {
               disabled={isPending}
               onClick={handleDeactivate}
             >
-              {isPending ? "Deactivating…" : "Deactivate"}
+              {isPending ? "Desactivando…" : "Desactivar"}
             </Button>
           )}
         </div>
@@ -113,24 +113,24 @@ interface ServiceListProps {
 export function ServiceList({ services }: ServiceListProps) {
   if (services.length === 0) {
     return (
-      <div className="rounded-md border px-6 py-12 text-center">
-        <p className="text-sm text-muted-foreground">
-          No services yet. Create your first service using the button above.
+      <div className="rounded-xl border border-white/[0.08] bg-[#1E1E1E] px-6 py-12 text-center">
+        <p className="text-sm text-[#9CA3AF]">
+          Todavía no hay servicios. Creá el primero con el botón de arriba.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-xl border border-white/[0.08] overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Duration</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
+          <TableRow className="border-b border-white/[0.08] bg-[#1E1E1E] hover:bg-[#1E1E1E]">
+            <TableHead className="text-[#9CA3AF]">Nombre</TableHead>
+            <TableHead className="text-[#9CA3AF]">Duración</TableHead>
+            <TableHead className="text-[#9CA3AF]">Precio</TableHead>
+            <TableHead className="text-[#9CA3AF]">Estado</TableHead>
+            <TableHead className="text-[#9CA3AF]">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

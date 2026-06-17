@@ -43,7 +43,7 @@ export default async function AgendaPage({
 
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-bold tracking-tight">Agenda</h1>
+      <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Agenda</h1>
       <AgendaClient appointments={appointments} date={date} />
     </div>
   );

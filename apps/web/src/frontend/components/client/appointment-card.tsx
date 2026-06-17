@@ -107,7 +107,7 @@ export function AppointmentCard({
   }
 
   return (
-    <Card className="border-gold-500/15 bg-surface-200">
+    <Card className="border-white/[0.08] bg-[#1E1E1E]">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <CardTitle className="font-display text-base text-foreground">{service.name}</CardTitle>

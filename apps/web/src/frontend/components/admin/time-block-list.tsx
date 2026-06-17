@@ -34,7 +34,7 @@ function TimeBlockRow({ block }: { block: TimeBlock }) {
 
   function handleDelete() {
     const confirmed = window.confirm(
-      "Delete this time block? This action cannot be undone."
+      "¿Eliminar este bloque? Esta acción no se puede deshacer."
     );
     if (!confirmed) return;
 
@@ -74,7 +74,7 @@ function TimeBlockRow({ block }: { block: TimeBlock }) {
           disabled={isPending}
           onClick={handleDelete}
         >
-          {isPending ? "Deleting…" : "Delete"}
+          {isPending ? "Eliminando…" : "Eliminar"}
         </Button>
         {deleteError && (
           <p className="text-xs text-destructive mt-1">{deleteError}</p>
@@ -98,23 +98,23 @@ interface TimeBlockListProps {
 export function TimeBlockList({ timeBlocks }: TimeBlockListProps) {
   if (timeBlocks.length === 0) {
     return (
-      <div className="rounded-md border px-6 py-12 text-center">
-        <p className="text-sm text-muted-foreground">
-          No upcoming time blocks. Use the form above to add one.
+      <div className="rounded-xl border border-white/[0.08] bg-[#1E1E1E] px-6 py-12 text-center">
+        <p className="text-sm text-[#9CA3AF]">
+          No hay bloques próximos. Usá el formulario de arriba para agregar uno.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-xl border border-white/[0.08] overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Time range</TableHead>
-            <TableHead>Reason</TableHead>
-            <TableHead>Actions</TableHead>
+          <TableRow className="border-b border-white/[0.08] bg-[#1E1E1E] hover:bg-[#1E1E1E]">
+            <TableHead className="text-[#9CA3AF]">Fecha</TableHead>
+            <TableHead className="text-[#9CA3AF]">Horario</TableHead>
+            <TableHead className="text-[#9CA3AF]">Motivo</TableHead>
+            <TableHead className="text-[#9CA3AF]">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

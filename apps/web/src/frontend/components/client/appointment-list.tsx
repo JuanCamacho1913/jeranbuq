@@ -17,9 +17,9 @@ export function AppointmentList({
 }) {
   if (appointments.length === 0) {
     return (
-      <p className="py-12 text-center text-sm text-muted-foreground">
-        No tenés citas programadas.
-      </p>
+      <div className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-[#1E1E1E] py-16 text-center">
+        <p className="text-sm text-[#9CA3AF]">No tenés citas programadas.</p>
+      </div>
     );
   }
 
