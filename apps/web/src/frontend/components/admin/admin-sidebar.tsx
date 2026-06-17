@@ -7,10 +7,7 @@ import { LayoutDashboard, Scissors, Calendar, CalendarDays, Menu, LogOut } from 
 import { signOut } from "next-auth/react";
 import { Button } from "@/frontend/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/frontend/components/ui/sheet";
-import { Separator } from "@/frontend/components/ui/separator";
 import { cn } from "@/frontend/lib/utils";
-
-// ─── Nav config ───────────────────────────────────────────────────────────────
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -18,8 +15,6 @@ const navItems = [
   { href: "/admin/servicios", label: "Servicios", icon: Scissors },
   { href: "/admin/disponibilidad", label: "Disponibilidad", icon: Calendar },
 ] as const;
-
-// ─── NavLink ─────────────────────────────────────────────────────────────────
 
 function NavLink({
   href,
@@ -39,10 +34,10 @@ function NavLink({
       href={href}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200",
         active
-          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          ? "bg-gold-500/12 text-gold-400"
+          : "text-[#A0A0A0] hover:bg-gold-500/8 hover:text-gold-400"
       )}
     >
       <Icon className="h-4 w-4 shrink-0" />
@@ -51,12 +46,9 @@ function NavLink({
   );
 }
 
-// ─── Sidebar Nav content (shared between desktop and mobile) ─────────────────
-
 function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
-  // Exact match for dashboard, prefix match for sub-routes
   function isActive(href: string) {
     if (href === "/admin") return pathname === "/admin";
     return pathname.startsWith(href);
@@ -78,35 +70,45 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-// ─── AdminSidebar ─────────────────────────────────────────────────────────────
+function SidebarHeader() {
+  return (
+    <div className="flex h-16 items-center gap-3 px-4">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/logo.png"
+        alt="JB Barber Studio"
+        width={36}
+        height={36}
+        className="h-8 w-8 rounded-full object-contain"
+      />
+      <span className="font-display text-sm font-semibold tracking-wide text-foreground">
+        JB Barber Studio
+      </span>
+    </div>
+  );
+}
 
-/**
- * Responsive admin sidebar.
- * - Desktop (md+): fixed left sidebar always visible.
- * - Mobile (<md): hidden by default, opens via hamburger into a Sheet drawer.
- */
 export function AdminSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <>
       {/* Desktop sidebar */}
-      <aside aria-label="Navegación de administrador" className="hidden md:flex h-screen w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
-        <div className="flex h-14 items-center px-4">
-          <span className="text-sm font-semibold text-sidebar-foreground">
-            Barbería Jeranbuq
-          </span>
-        </div>
-        <Separator />
+      <aside
+        aria-label="Navegación de administrador"
+        className="hidden h-screen w-56 shrink-0 flex-col border-r border-gold-500/15 bg-[#0A0A0A] md:flex"
+      >
+        <SidebarHeader />
+        <div className="h-px bg-gold-500/10" />
         <div className="flex-1">
           <SidebarNav />
         </div>
-        <Separator />
+        <div className="h-px bg-gold-500/10" />
         <div className="p-4">
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            className="w-full justify-start gap-3 text-[#A0A0A0] transition-colors duration-200 hover:bg-gold-500/8 hover:text-gold-400"
             onClick={() => signOut({ callbackUrl: "/login" })}
           >
             <LogOut className="h-4 w-4 shrink-0" />
@@ -116,29 +118,30 @@ export function AdminSidebar() {
       </aside>
 
       {/* Mobile hamburger + Sheet drawer */}
-      <div className="flex md:hidden h-14 items-center border-b border-border px-4">
+      <div className="flex h-14 items-center border-b border-gold-500/15 bg-[#0A0A0A] px-4 md:hidden">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Open navigation menu">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Open navigation menu"
+              className="text-[#A0A0A0] hover:bg-gold-500/10 hover:text-gold-400"
+            >
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-56 p-0 bg-sidebar flex flex-col">
-            <div className="flex h-14 items-center px-4">
-              <span className="text-sm font-semibold text-sidebar-foreground">
-                Barbería Jeranbuq
-              </span>
-            </div>
-            <Separator />
+          <SheetContent side="left" className="flex w-56 flex-col border-r border-gold-500/15 bg-[#0A0A0A] p-0">
+            <SidebarHeader />
+            <div className="h-px bg-gold-500/10" />
             <div className="flex-1">
               <SidebarNav onNavigate={() => setMobileOpen(false)} />
             </div>
-            <Separator />
+            <div className="h-px bg-gold-500/10" />
             <div className="p-4">
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                className="w-full justify-start gap-3 text-[#A0A0A0] hover:bg-gold-500/8 hover:text-gold-400"
                 onClick={() => signOut({ callbackUrl: "/login" })}
               >
                 <LogOut className="h-4 w-4 shrink-0" />

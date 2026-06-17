@@ -7,15 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/frontend/components/ui/card";
-import { Button } from "@/frontend/components/ui/button";
 import { Clock } from "lucide-react";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Formats a COP price with Colombian thousand separators.
- * Example: 25000 → "$25.000"
- */
 function formatCOP(price: number): string {
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
@@ -25,38 +18,39 @@ function formatCOP(price: number): string {
   }).format(price);
 }
 
-// ─── ServiceCard ──────────────────────────────────────────────────────────────
-
-/**
- * Displays a service with its name, description (truncated to 2 lines),
- * duration in minutes, price in COP, and an "Agendar" link button.
- */
 export function ServiceCard({ service }: { service: Service }) {
   return (
-    <Card className="flex flex-col">
+    <Card className="group flex flex-col border-gold-500/15 bg-surface-200 transition-all duration-300 hover:border-gold-500/40 hover:shadow-[0_0_30px_rgba(201,162,39,0.08)]">
       <CardHeader>
-        <CardTitle className="text-base">{service.name}</CardTitle>
+        <CardTitle className="font-display text-base text-foreground">
+          {service.name}
+        </CardTitle>
       </CardHeader>
 
       <CardContent className="flex-1 space-y-3">
         {service.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="line-clamp-2 text-sm text-[#A0A0A0]">
             {service.description}
           </p>
         )}
 
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-sm text-[#A0A0A0]">
           <Clock className="h-3.5 w-3.5 shrink-0" />
           <span>{service.durationMin} min</span>
         </div>
 
-        <p className="text-lg font-semibold">{formatCOP(service.price)}</p>
+        <p className="text-lg font-semibold text-gold-400">
+          {formatCOP(service.price)}
+        </p>
       </CardContent>
 
       <CardFooter>
-        <Button asChild className="w-full">
-          <Link href={`/agendar/${service.id}`}>Agendar</Link>
-        </Button>
+        <Link
+          href={`/agendar/${service.id}`}
+          className="flex w-full items-center justify-center rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-semibold text-[#050505] transition-all duration-200 hover:bg-gold-400 hover:shadow-[0_0_20px_rgba(201,162,39,0.2)]"
+        >
+          Agendar
+        </Link>
       </CardFooter>
     </Card>
   );

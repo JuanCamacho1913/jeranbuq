@@ -11,11 +11,11 @@ export default async function LoginPage() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1 text-center">
-        <h1 className="text-2xl font-semibold text-neutral-900">
+      <div className="space-y-2 text-center">
+        <h1 className="font-display text-2xl font-semibold text-foreground">
           Iniciar sesión
         </h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-[#A0A0A0]">
           Accedé con tu cuenta de Google
         </p>
       </div>

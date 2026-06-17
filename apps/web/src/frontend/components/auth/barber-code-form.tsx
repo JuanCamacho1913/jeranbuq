@@ -8,8 +8,6 @@ import {
 } from "@/frontend/types/form";
 import { GoogleSignInButton } from "./google-sign-in-button";
 
-// ─── Error code → display message map ────────────────────────────────────────
-
 const errorMessages: Record<string, string> = {
   INVALID_CODE: "Código incorrecto",
   SERVICE_UNAVAILABLE: "Servicio no disponible. Intentá más tarde.",
@@ -27,7 +25,7 @@ export function BarberCodeForm() {
   if (state.success) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-green-700">
+        <p className="text-sm text-gold-400">
           Código correcto. Iniciá sesión con Google para continuar.
         </p>
         <GoogleSignInButton callbackUrl="/" />
@@ -40,7 +38,7 @@ export function BarberCodeForm() {
       <div className="space-y-1">
         <label
           htmlFor="code"
-          className="block text-sm font-medium text-neutral-700"
+          className="block text-sm font-medium text-[#A0A0A0]"
         >
           Código de acceso
         </label>
@@ -51,13 +49,13 @@ export function BarberCodeForm() {
           required
           autoComplete="off"
           placeholder="Ingresá el código"
-          className="block w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-60"
+          className="block w-full rounded-lg border border-gold-500/20 bg-[#0A0A0A] px-3 py-2 text-sm text-foreground placeholder:text-[#555] transition-colors duration-200 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500/50 disabled:opacity-60"
           disabled={isPending}
         />
       </div>
 
       {state.error && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-[#C0392B]">
           {errorMessages[state.error] ?? state.error}
         </p>
       )}
@@ -65,7 +63,7 @@ export function BarberCodeForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="flex w-full justify-center rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full justify-center rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-semibold text-[#050505] shadow-sm transition-all duration-200 hover:bg-gold-400 hover:shadow-[0_0_20px_rgba(201,162,39,0.2)] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? "Verificando..." : "Verificar código"}
       </button>

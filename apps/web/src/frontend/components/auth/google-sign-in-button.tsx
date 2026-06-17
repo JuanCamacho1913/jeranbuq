@@ -26,9 +26,8 @@ export function GoogleSignInButton({
       type="button"
       onClick={handleClick}
       disabled={loading}
-      className="flex w-full items-center justify-center gap-3 rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-3 rounded-lg border border-gold-500/30 bg-transparent px-4 py-3 text-sm font-medium text-foreground transition-all hover:border-gold-400 hover:bg-gold-500/10 hover:shadow-[0_0_20px_rgba(201,162,39,0.1)] disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {/* Google icon */}
       <svg
         aria-hidden="true"
         viewBox="0 0 24 24"

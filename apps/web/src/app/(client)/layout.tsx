@@ -1,11 +1,6 @@
 import { requireAuth } from "@/backend/lib/guards";
 import { ClientHeader } from "@/frontend/components/client/client-header";
 
-/**
- * Client route group layout.
- * Guards every /(client)/* route: redirects unauthenticated users to /login.
- * Any authenticated role (CLIENT or ADMIN) may access client-facing pages.
- */
 export default async function ClientLayout({
   children,
 }: {
@@ -14,7 +9,7 @@ export default async function ClientLayout({
   await requireAuth();
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-[#050505]">
       <ClientHeader />
       <main className="flex-1">
         {children}
