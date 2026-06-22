@@ -87,9 +87,11 @@ export async function deactivateService(
 export async function getServices(
   includeInactive: boolean
 ): Promise<ApiResponse<Service[]>> {
+  const orderBy = [{ category: "asc" as const }, { name: "asc" as const }];
+
   const services = includeInactive
-    ? await prisma.service.findMany()
-    : await prisma.service.findMany({ where: { active: true } });
+    ? await prisma.service.findMany({ orderBy })
+    : await prisma.service.findMany({ where: { active: true }, orderBy });
 
   return { ok: true, data: services };
 }

@@ -9,6 +9,8 @@ import {
   updateServiceSchema,
   type ServiceFormData,
   type UpdateServiceData,
+  SERVICE_CATEGORIES,
+  CATEGORY_LABELS,
 } from "@barberia-jeranbuq/shared";
 import {
   createServiceAction,
@@ -32,6 +34,13 @@ import {
 import { Input } from "@/frontend/components/ui/input";
 import { Textarea } from "@/frontend/components/ui/textarea";
 import { Button } from "@/frontend/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/frontend/components/ui/select";
 
 // ─── Shared field layout ──────────────────────────────────────────────────────
 
@@ -77,6 +86,8 @@ function CreateServiceForm({
       description: "",
       durationMin: 30,
       price: 0,
+      category: "HAIRCUT",
+      priceNote: "",
     },
   });
 
@@ -170,6 +181,49 @@ function CreateServiceForm({
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Categoría</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar categoría" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {SERVICE_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {CATEGORY_LABELS[cat]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="priceNote"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nota de precio</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder='e.g. "desde $32.000"'
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {serverError && (
           <p className="text-sm text-destructive">{serverError}</p>
         )}
@@ -213,6 +267,8 @@ function EditServiceForm({
       description: service.description ?? "",
       durationMin: service.durationMin,
       price: service.price,
+      category: service.category,
+      priceNote: service.priceNote ?? "",
     },
   });
 
@@ -299,6 +355,49 @@ function EditServiceForm({
                 <PriceInput
                   value={field.value ?? 0}
                   onChange={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Categoría</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar categoría" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {SERVICE_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {CATEGORY_LABELS[cat]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="priceNote"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nota de precio</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder='e.g. "desde $32.000"'
+                  {...field}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />

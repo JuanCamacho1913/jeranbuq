@@ -42,6 +42,10 @@ export function ServiceCard({ service }: { service: Service }) {
         <p className="text-lg font-semibold text-gold-400">
           {formatCOP(service.price)}
         </p>
+
+        {service.priceNote && (
+          <p className="text-xs text-[#A0A0A0]">{service.priceNote}</p>
+        )}
       </CardContent>
 
       <CardFooter>

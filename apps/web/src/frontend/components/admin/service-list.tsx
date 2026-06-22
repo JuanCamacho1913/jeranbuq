@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import type { Service } from "@barberia-jeranbuq/database";
+import { CATEGORY_LABELS } from "@barberia-jeranbuq/shared";
 import { deactivateServiceAction } from "@/backend/actions/services.actions";
 import { ServiceForm } from "@/frontend/components/admin/service-form";
 import {
@@ -50,6 +51,9 @@ function ServiceRow({ service }: { service: Service }) {
     <TableRow>
       {/* Name */}
       <TableCell className="font-medium">{service.name}</TableCell>
+
+      {/* Category */}
+      <TableCell>{CATEGORY_LABELS[service.category]}</TableCell>
 
       {/* Duration */}
       <TableCell>{formatDuration(service.durationMin)}</TableCell>
@@ -127,6 +131,7 @@ export function ServiceList({ services }: ServiceListProps) {
         <TableHeader>
           <TableRow className="border-b border-white/[0.08] bg-[#1E1E1E] hover:bg-[#1E1E1E]">
             <TableHead className="text-[#9CA3AF]">Nombre</TableHead>
+            <TableHead className="text-[#9CA3AF]">Categoría</TableHead>
             <TableHead className="text-[#9CA3AF]">Duración</TableHead>
             <TableHead className="text-[#9CA3AF]">Precio</TableHead>
             <TableHead className="text-[#9CA3AF]">Estado</TableHead>

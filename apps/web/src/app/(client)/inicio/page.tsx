@@ -1,12 +1,29 @@
 import Link from "next/link";
 import { prisma } from "@barberia-jeranbuq/database";
+import {
+  CATEGORY_DISPLAY_ORDER,
+  CATEGORY_LABELS,
+} from "@barberia-jeranbuq/shared";
 import { ServiceCard } from "@/frontend/components/client/service-card";
 
 export default async function InicioPage() {
   const services = await prisma.service.findMany({
     where: { active: true },
-    orderBy: { name: "asc" },
+    orderBy: [{ category: "asc" }, { name: "asc" }],
   });
+
+  // Group services by category
+  const servicesByCategory = Object.fromEntries(
+    CATEGORY_DISPLAY_ORDER.map((cat) => [
+      cat,
+      services.filter((s) => s.category === cat),
+    ])
+  );
+
+  // Only categories that have at least one service
+  const activeCategories = CATEGORY_DISPLAY_ORDER.filter(
+    (cat) => (servicesByCategory[cat]?.length ?? 0) > 0
+  );
 
   return (
     <div className="min-h-screen bg-[#050505]">
@@ -63,14 +80,23 @@ export default async function InicioPage() {
             No hay servicios disponibles en este momento.
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((service, i) => (
-              <div
-                key={service.id}
-                className="animate-fade-up"
-                style={{ animationDelay: `${i * 0.1}s` }}
-              >
-                <ServiceCard service={service} />
+          <div className="space-y-12">
+            {activeCategories.map((category) => (
+              <div key={category}>
+                <h3 className="mb-6 font-display text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                  {CATEGORY_LABELS[category]}
+                </h3>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {servicesByCategory[category]?.map((service, i) => (
+                    <div
+                      key={service.id}
+                      className="animate-fade-up"
+                      style={{ animationDelay: `${i * 0.1}s` }}
+                    >
+                      <ServiceCard service={service} />
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

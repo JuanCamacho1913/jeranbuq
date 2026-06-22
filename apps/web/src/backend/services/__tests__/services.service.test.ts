@@ -35,6 +35,8 @@ const mockService = {
   description: null,
   durationMin: 30,
   price: 25000,
+  category: "HAIRCUT" as const,
+  priceNote: null,
   active: true,
   createdAt: new Date("2026-01-01"),
   updatedAt: new Date("2026-01-01"),
@@ -167,7 +169,7 @@ describe("getServices", () => {
     vi.clearAllMocks();
   });
 
-  it("getServices(true) returns all services including inactive", async () => {
+  it("getServices(true) returns all services including inactive with orderBy", async () => {
     const allServices = [
       mockService,
       { ...mockService, id: "cmc0000000000000000000002", active: false },
@@ -177,10 +179,12 @@ describe("getServices", () => {
     const result = await getServices(true);
 
     expect(result).toEqual({ ok: true, data: allServices });
-    expect(mockPrismaService.findMany).toHaveBeenCalledWith();
+    expect(mockPrismaService.findMany).toHaveBeenCalledWith({
+      orderBy: [{ category: "asc" }, { name: "asc" }],
+    });
   });
 
-  it("getServices(false) returns only active services", async () => {
+  it("getServices(false) returns only active services with orderBy", async () => {
     const activeServices = [mockService];
     mockPrismaService.findMany.mockResolvedValueOnce(activeServices);
 
@@ -189,6 +193,38 @@ describe("getServices", () => {
     expect(result).toEqual({ ok: true, data: activeServices });
     expect(mockPrismaService.findMany).toHaveBeenCalledWith({
       where: { active: true },
+      orderBy: [{ category: "asc" }, { name: "asc" }],
     });
+  });
+
+  it("getServices returns services with category and priceNote fields", async () => {
+    const vipService = {
+      ...mockService,
+      id: "cmc0000000000000000000003",
+      name: "VIP Completo",
+      category: "VIP" as const,
+      priceNote: "desde $80.000",
+    };
+    const haircutService = {
+      ...mockService,
+      id: "cmc0000000000000000000004",
+      name: "Corte Clásico",
+      category: "HAIRCUT" as const,
+      priceNote: null,
+    };
+    mockPrismaService.findMany.mockResolvedValueOnce([
+      haircutService,
+      vipService,
+    ]);
+
+    const result = await getServices(false);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data[0]?.category).toBe("HAIRCUT");
+      expect(result.data[1]?.category).toBe("VIP");
+      expect(result.data[0]?.priceNote).toBeNull();
+      expect(result.data[1]?.priceNote).toBe("desde $80.000");
+    }
   });
 });
