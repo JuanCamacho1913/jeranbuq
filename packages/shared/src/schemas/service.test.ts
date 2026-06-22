@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   createServiceSchema,
   updateServiceSchema,
+  SERVICE_CATEGORIES,
+  CATEGORY_LABELS,
 } from "./service";
 
 // ─── createServiceSchema ──────────────────────────────────────────────────────
@@ -12,6 +14,7 @@ describe("createServiceSchema", () => {
     durationMin: 30,
     price: 25000,
     description: "Un corte clásico profesional",
+    category: "HAIRCUT" as const,
   };
 
   it("accepts a fully valid service", () => {
@@ -153,5 +156,80 @@ describe("updateServiceSchema", () => {
     expect(() =>
       updateServiceSchema.parse({ id: validCuid, durationMin: 9 })
     ).toThrow();
+  });
+
+  it("accepts update with only category (partial)", () => {
+    expect(() =>
+      updateServiceSchema.parse({ id: validCuid, category: "VIP" })
+    ).not.toThrow();
+  });
+});
+
+// ─── ServiceCategory schema ────────────────────────────────────────────────────
+
+describe("ServiceCategory schema", () => {
+  const validService = {
+    name: "Servicio de prueba",
+    durationMin: 30,
+    price: 25000,
+  };
+
+  it("exports SERVICE_CATEGORIES with 6 values", () => {
+    expect(SERVICE_CATEGORIES).toHaveLength(6);
+    expect(SERVICE_CATEGORIES).toContain("HAIRCUT");
+    expect(SERVICE_CATEGORIES).toContain("COMBO");
+    expect(SERVICE_CATEGORIES).toContain("PREMIUM");
+    expect(SERVICE_CATEGORIES).toContain("VIP");
+    expect(SERVICE_CATEGORIES).toContain("COLORIMETRIA");
+    expect(SERVICE_CATEGORIES).toContain("KIDS");
+  });
+
+  it("exports CATEGORY_LABELS with Spanish label for each category", () => {
+    for (const cat of SERVICE_CATEGORIES) {
+      expect(CATEGORY_LABELS[cat]).toBeTruthy();
+      expect(typeof CATEGORY_LABELS[cat]).toBe("string");
+    }
+  });
+
+  it.each(SERVICE_CATEGORIES)("accepts valid category %s", (cat) => {
+    expect(() =>
+      createServiceSchema.parse({ ...validService, category: cat })
+    ).not.toThrow();
+  });
+
+  it("rejects unknown category value", () => {
+    expect(() =>
+      createServiceSchema.parse({ ...validService, category: "UNKNOWN" })
+    ).toThrow();
+  });
+
+  it("rejects missing category", () => {
+    expect(() => createServiceSchema.parse(validService)).toThrow();
+  });
+
+  it("accepts priceNote up to 50 characters", () => {
+    expect(() =>
+      createServiceSchema.parse({
+        ...validService,
+        category: "HAIRCUT",
+        priceNote: "a".repeat(50),
+      })
+    ).not.toThrow();
+  });
+
+  it("rejects priceNote exceeding 50 characters", () => {
+    expect(() =>
+      createServiceSchema.parse({
+        ...validService,
+        category: "HAIRCUT",
+        priceNote: "a".repeat(51),
+      })
+    ).toThrow();
+  });
+
+  it("accepts missing priceNote (optional)", () => {
+    expect(() =>
+      createServiceSchema.parse({ ...validService, category: "HAIRCUT" })
+    ).not.toThrow();
   });
 });

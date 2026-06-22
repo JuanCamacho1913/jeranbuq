@@ -70,6 +70,7 @@ describe("createServiceAction", () => {
       name: "Corte Clásico",
       durationMin: 30,
       price: 25000,
+      category: "HAIRCUT",
     });
 
     expect(mockRequireAdmin).toHaveBeenCalledOnce();
@@ -83,12 +84,14 @@ describe("createServiceAction", () => {
       name: "Corte Clásico",
       durationMin: 30,
       price: 25000,
+      category: "HAIRCUT",
     });
 
     expect(mockServiceLayer.createService).toHaveBeenCalledWith({
       name: "Corte Clásico",
       durationMin: 30,
       price: 25000,
+      category: "HAIRCUT",
     });
     expect(result).toEqual(serviceResult);
   });

@@ -33,47 +33,179 @@ async function main() {
     console.log(`Upserted availability for ${day.label}`);
   }
 
-  // Upsert 3 sample services
-  const services = [
-    {
-      name: "Corte Clásico",
-      description: "Corte de cabello clásico con tijera y máquina",
-      durationMin: 30,
-      price: 25000,
-    },
-    {
-      name: "Barba",
-      description: "Arreglo y delineado de barba",
-      durationMin: 20,
-      price: 15000,
-    },
-    {
-      name: "Corte + Barba",
-      description: "Combo corte de cabello y arreglo de barba",
-      durationMin: 50,
-      price: 35000,
-    },
-  ];
+  // IMPORTANT: All appointments must be CANCELLED before running this seed.
+  // This block deletes all appointments and services, then re-creates the full 19-service catalog.
+  await prisma.$transaction(async (tx) => {
+    await tx.appointment.deleteMany();
+    console.log("Deleted all existing appointments");
 
-  for (const service of services) {
-    await prisma.service.upsert({
-      where: { name: service.name },
-      update: {
-        description: service.description,
-        durationMin: service.durationMin,
-        price: service.price,
-        active: true,
-      },
-      create: {
-        name: service.name,
-        description: service.description,
-        durationMin: service.durationMin,
-        price: service.price,
-        active: true,
-      },
+    await tx.service.deleteMany();
+    console.log("Deleted all existing services");
+
+    await tx.service.createMany({
+      data: [
+        // HAIRCUT
+        {
+          name: "Corte básico 1y2",
+          price: 20000,
+          durationMin: 30,
+          category: "HAIRCUT",
+          active: true,
+        },
+        {
+          name: "Corte de cabello",
+          price: 25000,
+          durationMin: 30,
+          category: "HAIRCUT",
+          priceNote: "desde $25.000",
+          active: true,
+        },
+        {
+          name: "Corte de cabello a tijera",
+          price: 32000,
+          durationMin: 45,
+          category: "HAIRCUT",
+          priceNote: "desde $32.000",
+          active: true,
+        },
+        {
+          name: "Contornos",
+          price: 16000,
+          durationMin: 20,
+          category: "HAIRCUT",
+          active: true,
+        },
+        {
+          name: "Base",
+          price: 18000,
+          durationMin: 20,
+          category: "HAIRCUT",
+          active: true,
+        },
+
+        // COMBO
+        {
+          name: "Barba",
+          price: 18000,
+          durationMin: 30,
+          category: "COMBO",
+          description: "Incluye ritual de barba",
+          active: true,
+        },
+        {
+          name: "Barba + Contorno o Base",
+          price: 25000,
+          durationMin: 40,
+          category: "COMBO",
+          description: "Incluye ritual de barba",
+          active: true,
+        },
+        {
+          name: "Corte de cabello + Barba",
+          price: 30000,
+          durationMin: 60,
+          category: "COMBO",
+          description: "Incluye ritual de barba",
+          active: true,
+        },
+        {
+          name: "Corte de cabello + Barba diseño",
+          price: 32000,
+          durationMin: 75,
+          category: "COMBO",
+          priceNote: "desde $32.000",
+          description: "Incluye ritual de barba",
+          active: true,
+        },
+        {
+          name: "Corte de cabello + Barba + Maquillaje de barba",
+          price: 35000,
+          durationMin: 75,
+          category: "COMBO",
+          description: "Incluye ritual de barba",
+          active: true,
+        },
+
+        // PREMIUM
+        {
+          name: "Corte de cabello + Puntos negros",
+          price: 32000,
+          durationMin: 45,
+          category: "PREMIUM",
+          active: true,
+        },
+        {
+          name: "Corte de cabello + Exfoliación",
+          price: 32000,
+          durationMin: 45,
+          category: "PREMIUM",
+          active: true,
+        },
+        {
+          name: "Corte de cabello + Depilación nasal",
+          price: 32000,
+          durationMin: 45,
+          category: "PREMIUM",
+          active: true,
+        },
+
+        // VIP
+        {
+          name: "Servicio VIP",
+          price: 70000,
+          durationMin: 120,
+          category: "VIP",
+          description:
+            "Corte · Barba · Puntos negros · Exfoliación · Hidratación velo de colágeno · Depilación nasal & oídos · Enjuague · Moldeo de peinado · Bebida. Ideal para bodas y eventos especiales.",
+          active: true,
+        },
+
+        // COLORIMETRIA
+        {
+          name: "Enjuague de cabello + Moldeo de peinado",
+          price: 2000,
+          durationMin: 15,
+          category: "COLORIMETRIA",
+          description: "Adicional a cualquier servicio",
+          active: true,
+        },
+        {
+          name: "Corte de cabello + Enjuague base negro",
+          price: 42000,
+          durationMin: 60,
+          category: "COLORIMETRIA",
+          active: true,
+        },
+        {
+          name: "Mechas",
+          price: 40000,
+          durationMin: 90,
+          category: "COLORIMETRIA",
+          priceNote: "desde $40.000",
+          active: true,
+        },
+        {
+          name: "Platinados",
+          price: 80000,
+          durationMin: 120,
+          category: "COLORIMETRIA",
+          priceNote: "desde $80.000",
+          active: true,
+        },
+
+        // KIDS
+        {
+          name: "Corte de cabello niño",
+          price: 25000,
+          durationMin: 25,
+          category: "KIDS",
+          active: true,
+        },
+      ],
     });
-    console.log(`Upserted service: ${service.name}`);
-  }
+
+    console.log("Created 19 real services");
+  });
 }
 
 main()
