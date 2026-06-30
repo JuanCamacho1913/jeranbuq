@@ -29,7 +29,7 @@ export function ServiceCard({ service }: { service: Service }) {
 
       <CardContent className="flex-1 space-y-3">
         {service.description && (
-          <p className="line-clamp-2 text-sm text-[#A0A0A0]">
+          <p className="text-sm text-[#A0A0A0]">
             {service.description}
           </p>
         )}

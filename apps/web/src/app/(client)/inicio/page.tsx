@@ -9,7 +9,7 @@ import { ServiceCard } from "@/frontend/components/client/service-card";
 export default async function InicioPage() {
   const services = await prisma.service.findMany({
     where: { active: true },
-    orderBy: [{ category: "asc" }, { name: "asc" }],
+    orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
   });
 
   // Group services by category
@@ -42,8 +42,8 @@ export default async function InicioPage() {
           />
 
           <h1 className="animate-fade-up font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            Tu imagen,{" "}
-            <span className="text-gold-400">nuestra pasión.</span>
+            Jeranbuq,{" "}
+            <span className="text-gold-400">asesora tu imagen</span>
           </h1>
 
           <p className="animate-fade-up-delay-1 mx-auto max-w-md text-base text-[#A0A0A0] sm:text-lg">
