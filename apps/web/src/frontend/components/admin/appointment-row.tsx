@@ -177,6 +177,9 @@ export function AppointmentRow({
             {user.name && (
               <p className="text-muted-foreground text-xs">{user.email}</p>
             )}
+            {user.phone && (
+              <p className="text-muted-foreground text-xs">{user.phone}</p>
+            )}
           </div>
         </td>
 
