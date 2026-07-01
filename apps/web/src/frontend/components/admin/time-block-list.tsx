@@ -98,7 +98,7 @@ interface TimeBlockListProps {
 export function TimeBlockList({ timeBlocks }: TimeBlockListProps) {
   if (timeBlocks.length === 0) {
     return (
-      <div className="rounded-xl border border-white/[0.08] bg-[#1E1E1E] px-6 py-12 text-center">
+      <div className="rounded-xl border border-white/8 bg-[#1E1E1E] px-6 py-12 text-center">
         <p className="text-sm text-[#9CA3AF]">
           No hay bloques próximos. Usá el formulario de arriba para agregar uno.
         </p>
@@ -107,10 +107,10 @@ export function TimeBlockList({ timeBlocks }: TimeBlockListProps) {
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.08] overflow-hidden">
+    <div className="rounded-xl border border-white/8 overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="border-b border-white/[0.08] bg-[#1E1E1E] hover:bg-[#1E1E1E]">
+          <TableRow className="border-b border-white/8 bg-[#1E1E1E] hover:bg-[#1E1E1E]">
             <TableHead className="text-[#9CA3AF]">Fecha</TableHead>
             <TableHead className="text-[#9CA3AF]">Horario</TableHead>
             <TableHead className="text-[#9CA3AF]">Motivo</TableHead>

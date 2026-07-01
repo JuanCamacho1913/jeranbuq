@@ -57,6 +57,7 @@ describe("createService", () => {
       name: "Corte Clásico",
       durationMin: 30,
       price: 25000,
+      category: "HAIRCUT",
     });
 
     expect(result).toEqual({ ok: true, data: mockService });
@@ -68,6 +69,7 @@ describe("createService", () => {
         name: "Corte Clásico",
         durationMin: 30,
         price: 25000,
+        category: "HAIRCUT",
       },
     });
   });
@@ -79,6 +81,7 @@ describe("createService", () => {
       name: "Corte Clásico",
       durationMin: 30,
       price: 25000,
+      category: "HAIRCUT",
     });
 
     expect(result).toEqual({ ok: false, error: "SERVICE_NAME_TAKEN" });

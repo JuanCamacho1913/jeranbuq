@@ -17,7 +17,7 @@ export function AppointmentList({
 }) {
   if (appointments.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-[#1E1E1E] py-16 text-center">
+      <div className="flex flex-col items-center justify-center rounded-xl border border-white/8 bg-[#1E1E1E] py-16 text-center">
         <p className="text-sm text-[#9CA3AF]">No tenés citas programadas.</p>
       </div>
     );

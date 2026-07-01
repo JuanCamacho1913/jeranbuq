@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { AppointmentStatus } from "@barberia-jeranbuq/database";
+import type { AppointmentStatus } from "@barberia-jeranbuq/database";
 
 // ─── Mock Prisma client ───────────────────────────────────────────────────────
 // vi.hoisted ensures the object is defined before vi.mock hoisting runs.

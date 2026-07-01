@@ -62,6 +62,9 @@ const mockAvailability = {
 describe("getAvailableSlots", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Freeze time before all test dates so past-slot filtering doesn't affect them.
+    // TC-8 overrides this with its own setSystemTime call.
+    vi.useFakeTimers({ now: new Date("2026-01-01T00:00:00.000Z") });
   });
 
   // ─── TC-1: No AdminAvailability → empty array ─────────────────────────────

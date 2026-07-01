@@ -5,7 +5,9 @@
   "license": "MIT",
   "exports": {
     "./base": "./base.js",
-    "./next": "./next.js"
+    "./base.js": "./base.js",
+    "./next": "./next.js",
+    "./next.js": "./next.js"
   },
   "files": [
     "base.js",

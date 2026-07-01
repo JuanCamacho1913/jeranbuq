@@ -117,7 +117,7 @@ interface ServiceListProps {
 export function ServiceList({ services }: ServiceListProps) {
   if (services.length === 0) {
     return (
-      <div className="rounded-xl border border-white/[0.08] bg-[#1E1E1E] px-6 py-12 text-center">
+      <div className="rounded-xl border border-white/8 bg-[#1E1E1E] px-6 py-12 text-center">
         <p className="text-sm text-[#9CA3AF]">
           Todavía no hay servicios. Creá el primero con el botón de arriba.
         </p>
@@ -126,10 +126,10 @@ export function ServiceList({ services }: ServiceListProps) {
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.08] overflow-hidden">
+    <div className="rounded-xl border border-white/8 overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="border-b border-white/[0.08] bg-[#1E1E1E] hover:bg-[#1E1E1E]">
+          <TableRow className="border-b border-white/8 bg-[#1E1E1E] hover:bg-[#1E1E1E]">
             <TableHead className="text-[#9CA3AF]">Nombre</TableHead>
             <TableHead className="text-[#9CA3AF]">Categoría</TableHead>
             <TableHead className="text-[#9CA3AF]">Duración</TableHead>

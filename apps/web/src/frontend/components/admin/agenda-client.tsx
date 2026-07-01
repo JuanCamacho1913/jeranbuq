@@ -105,18 +105,18 @@ export function AgendaClient({
 
       {/* Appointment table or empty state */}
       {appointments.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-[#1E1E1E] py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-white/8 bg-[#1E1E1E] py-16 text-center">
           <CalendarDays className="h-8 w-8 text-[#9CA3AF] mb-3" />
           <p className="text-sm text-[#9CA3AF]">
             No hay citas para este día
           </p>
         </div>
       ) : (
-        <div className="rounded-xl border border-white/[0.08] overflow-x-auto">
+        <div className="rounded-xl border border-white/8 overflow-x-auto">
           <table className="w-full text-left">
             <caption className="sr-only">Agenda de citas</caption>
             <thead>
-              <tr className="border-b border-white/[0.08] bg-[#1E1E1E]">
+              <tr className="border-b border-white/8 bg-[#1E1E1E]">
                 <th scope="col" className="py-3 px-4 text-xs font-semibold text-[#9CA3AF] uppercase tracking-wide">
                   Hora
                 </th>

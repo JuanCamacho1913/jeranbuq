@@ -159,7 +159,7 @@ export function AppointmentRow({
 
   return (
     <>
-      <tr className="border-b border-white/[0.08] last:border-0">
+      <tr className="border-b border-white/8 last:border-0">
         {/* Time */}
         <td className="py-3 px-4">
           <div className="flex items-center gap-1.5 text-sm font-medium">
@@ -232,7 +232,7 @@ export function AppointmentRow({
                     <Button
                       size="sm"
                       variant="outline"
-                      className="text-[#9CA3AF] border-white/[0.15] hover:bg-white/[0.05]"
+                      className="text-[#9CA3AF] border-white/15 hover:bg-white/5"
                       onClick={() => handleAction("NO_SHOW")}
                       disabled={actionLoading !== null}
                     >

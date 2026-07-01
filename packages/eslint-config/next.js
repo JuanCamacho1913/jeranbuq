@@ -16,8 +16,8 @@ const compat = new FlatCompat({ baseDirectory: __dirname });
  * @type {import("typescript-eslint").ConfigArray}
  */
 const config = [
-  ...baseConfig,
   ...compat.extends("next/core-web-vitals"),
+  ...baseConfig,
 ];
 
 export default config;

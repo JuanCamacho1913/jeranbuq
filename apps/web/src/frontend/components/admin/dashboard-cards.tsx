@@ -26,7 +26,7 @@ export function DashboardCards({
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="border-white/[0.08] bg-[#1E1E1E]">
+        <Card className="border-white/8 bg-[#1E1E1E]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-[#A0A0A0]">Servicios Activos</CardTitle>
             <Scissors className="h-4 w-4 text-gold-500" />
@@ -37,7 +37,7 @@ export function DashboardCards({
           </CardContent>
         </Card>
 
-        <Card className="border-white/[0.08] bg-[#1E1E1E]">
+        <Card className="border-white/8 bg-[#1E1E1E]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-[#A0A0A0]">Agenda Semanal</CardTitle>
             <Calendar className="h-4 w-4 text-gold-500" />
