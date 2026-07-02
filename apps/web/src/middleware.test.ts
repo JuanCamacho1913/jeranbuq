@@ -29,16 +29,45 @@ function adminSession(onboardingCompletedAt: string | null = "2024-01-01T00:00:0
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("resolveRedirect (middleware logic)", () => {
-  // Tier 1: unauthenticated
+  // Tier 0: unauthenticated root → /inicio
+  describe("Tier 0 — unauthenticated root redirect", () => {
+    it("redirects to /inicio when session is null and pathname is /", () => {
+      const result = resolveRedirect(null, "/", BASE_URL);
+      expect(result?.pathname).toBe("/inicio");
+    });
+  });
+
+  // Tier 1: unauthenticated (non-root)
   describe("unauthenticated requests", () => {
-    it("redirects to /login when session is null", () => {
-      const redirect = resolveRedirect(null, "/dashboard", BASE_URL);
-      expect(redirect?.pathname).toBe("/login");
+    it("redirects to /login with callbackUrl when session is null", () => {
+      const result = resolveRedirect(null, "/dashboard", BASE_URL);
+      expect(result?.pathname).toBe("/login");
+      expect(result?.searchParams.get("callbackUrl")).toBe("/dashboard");
     });
 
-    it("redirects to /login for /admin/* when session is null", () => {
-      const redirect = resolveRedirect(null, "/admin/settings", BASE_URL);
-      expect(redirect?.pathname).toBe("/login");
+    it("redirects to /login with callbackUrl for /admin/* when session is null", () => {
+      const result = resolveRedirect(null, "/admin/settings", BASE_URL);
+      expect(result?.pathname).toBe("/login");
+      expect(result?.searchParams.get("callbackUrl")).toBe("/admin/settings");
+    });
+
+    it("redirects /mis-citas to /login?callbackUrl=%2Fmis-citas when unauthenticated", () => {
+      const result = resolveRedirect(null, "/mis-citas", BASE_URL);
+      expect(result?.pathname).toBe("/login");
+      expect(result?.searchParams.get("callbackUrl")).toBe("/mis-citas");
+    });
+
+    it("redirects /agendar/abc to /login?callbackUrl=%2Fagendar%2Fabc when unauthenticated", () => {
+      const result = resolveRedirect(null, "/agendar/abc", BASE_URL);
+      expect(result?.pathname).toBe("/login");
+      expect(result?.searchParams.get("callbackUrl")).toBe("/agendar/abc");
+    });
+
+    it("callbackUrl is a relative path only (no scheme, no host)", () => {
+      const result = resolveRedirect(null, "/some/path", BASE_URL);
+      const callbackUrl = result?.searchParams.get("callbackUrl") ?? "";
+      expect(callbackUrl.startsWith("/")).toBe(true);
+      expect(callbackUrl).not.toContain("://");
     });
   });
 

@@ -6,8 +6,9 @@ import { auth } from "@/backend/lib/auth";
 // ─── Core redirect logic (extracted for testability) ─────────────────────────
 
 /**
- * 3-tier auth redirect chain:
- *  1. No session                       → /login
+ * 4-tier auth redirect chain:
+ *  0. No session + pathname="/"        → /inicio  (public landing)
+ *  1. No session + any other path      → /login?callbackUrl={pathname}
  *  2. Session + no onboarding          → /onboarding  (skip if already there)
  *  3. /admin/* + non-ADMIN role        → /
  *  4. Everything else                  → allow
@@ -17,9 +18,16 @@ export function resolveRedirect(
   pathname: string,
   baseUrl: string
 ): URL | null {
-  // Tier 1: unauthenticated
+  // Tier 0: unauthenticated root → public landing
+  if (!session && pathname === "/") {
+    return new URL("/inicio", baseUrl);
+  }
+
+  // Tier 1: unauthenticated non-root → login with callbackUrl
   if (!session) {
-    return new URL("/login", baseUrl);
+    const loginUrl = new URL("/login", baseUrl);
+    loginUrl.searchParams.set("callbackUrl", pathname);
+    return loginUrl;
   }
 
   // Tier 2: authenticated but onboarding not completed
@@ -59,11 +67,13 @@ export const config = {
      * - _next/static, _next/image (Next.js internals)
      * - favicon.ico (static asset)
      * - /login (auth page — must be public)
-     * - $ (root path — handled by page.tsx role redirect)
+     * - /inicio (public landing — must be accessible without session)
+     * - *.* (static public assets — any path with a file extension, e.g. /logo.png)
      *
+     * / (root) IS matched so Tier 0 redirect (/ → /inicio) fires for guests.
      * /(admin)/*, /(auth)/*, /(protected)/*, /(client)/* ARE matched
      * so the middleware auth guard runs on them.
      */
-    "/((?!api/auth|api/v1|_next/static|_next/image|favicon.ico|login|$).*)",
+    "/((?!api/auth|api/v1|_next/static|_next/image|favicon.ico|login|inicio|.*\\..*).*)",
   ],
 };

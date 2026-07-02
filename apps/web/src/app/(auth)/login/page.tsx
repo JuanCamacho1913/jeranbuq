@@ -2,12 +2,18 @@ import { redirect } from "next/navigation";
 import { auth } from "@/backend/lib/auth";
 import { GoogleSignInButton } from "@/frontend/components/auth/google-sign-in-button";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string }>;
+}) {
   const session = await auth();
 
   if (session) {
     redirect("/");
   }
+
+  const { callbackUrl } = await searchParams;
 
   return (
     <div className="space-y-6">
@@ -20,7 +26,7 @@ export default async function LoginPage() {
         </p>
       </div>
 
-      <GoogleSignInButton />
+      <GoogleSignInButton callbackUrl={callbackUrl ?? "/"} />
     </div>
   );
 }
