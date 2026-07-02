@@ -22,12 +22,20 @@ export function PublicHeader() {
           </span>
         </Link>
 
-        <Link
-          href="/login"
-          className="rounded-lg border border-gold-500/40 px-4 py-2 text-sm font-medium text-gold-400 transition-colors hover:bg-gold-500/10"
-        >
-          Iniciar sesión
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/login/barbero"
+            className="text-xs font-medium text-[#606060] transition-colors hover:text-[#A0A0A0]"
+          >
+            Acceso Admin
+          </Link>
+          <Link
+            href="/login"
+            className="rounded-lg border border-gold-500/40 px-4 py-2 text-sm font-medium text-gold-400 transition-colors hover:bg-gold-500/10"
+          >
+            Iniciar sesión
+          </Link>
+        </div>
       </div>
     </header>
   );
