@@ -1,38 +1,101 @@
 import NextAuth from "next-auth";
+import type { NextAuthResult } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
+import { cookies } from "next/headers";
 import { prisma } from "@barberia-jeranbuq/database";
+import type { PrismaClient } from "@barberia-jeranbuq/database";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+// ─── Extracted sign-in logic (testable without NextAuth wiring) ───────────────
+
+type CookieStore = Awaited<ReturnType<typeof cookies>>;
+
+type SignInCallbackParams = {
+  userId: string;
+  provider: string;
+  cookieStore: CookieStore;
+  db: Pick<PrismaClient, "user">;
+};
+
+/**
+ * Core sign-in side-effect: promotes a new user to ADMIN when the
+ * `x-auth-intent=ADMIN` cookie is present. First-login wins — an existing
+ * ADMIN is never demoted and an existing non-CLIENT is not touched.
+ */
+export async function handleSignInIntent({
+  userId,
+  provider,
+  cookieStore,
+  db,
+}: SignInCallbackParams): Promise<void> {
+  if (provider !== "google") return;
+
+  const intent = cookieStore.get("x-auth-intent");
+  if (intent?.value !== "ADMIN") return;
+
+  const existing = await db.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+
+  if (existing?.role === "CLIENT" || existing === null) {
+    await db.user.update({
+      where: { id: userId },
+      data: { role: "ADMIN" },
+    });
+  }
+
+  cookieStore.delete("x-auth-intent");
+}
+
+// ─── NextAuth instance ────────────────────────────────────────────────────────
+
+const authResult: NextAuthResult = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [Google],
   session: {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account }) {
+      if (user.id && account) {
+        const cookieStore = await cookies();
+        await handleSignInIntent({
+          userId: user.id,
+          provider: account.provider,
+          cookieStore,
+          db: prisma,
+        });
+      }
+      return true;
+    },
+    async jwt({ token, user, trigger, session }) {
       if (user) {
+        // Initial sign-in: populate token from the user record
         token.id = user.id;
-        // @ts-expect-error — extended User fields from Prisma schema
         token.role = user.role ?? null;
-        // @ts-expect-error — extended User fields from Prisma schema
         token.phone = user.phone ?? null;
-        // @ts-expect-error — extended User fields from Prisma schema
         token.onboardingCompletedAt = user.onboardingCompletedAt ?? null;
+      }
+      if (trigger === "update" && session?.user) {
+        // unstable_update() call: merge only the provided fields into the token
+        if (session.user.phone != null) token.phone = session.user.phone;
+        if (session.user.onboardingCompletedAt != null) {
+          token.onboardingCompletedAt = session.user.onboardingCompletedAt;
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        // @ts-expect-error — extended session user fields
         session.user.role = token.role ?? null;
-        // @ts-expect-error — extended session user fields
         session.user.phone = token.phone ?? null;
-        // @ts-expect-error — extended session user fields
         session.user.onboardingCompletedAt = token.onboardingCompletedAt ?? null;
       }
       return session;
     },
   },
 });
+
+export const { handlers, auth, signIn, signOut, unstable_update } = authResult;

@@ -1,0 +1,208 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
+// ─── Mock next/headers ────────────────────────────────────────────────────────
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(),
+}));
+
+// ─── Mock next-auth ───────────────────────────────────────────────────────────
+vi.mock("next-auth", () => ({
+  default: vi.fn().mockReturnValue({
+    handlers: {},
+    auth: vi.fn(),
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+    unstable_update: vi.fn(),
+  }),
+}));
+
+// ─── Mock @auth/prisma-adapter ────────────────────────────────────────────────
+vi.mock("@auth/prisma-adapter", () => ({
+  PrismaAdapter: vi.fn().mockReturnValue({}),
+}));
+
+// ─── Mock next-auth/providers/google ─────────────────────────────────────────
+vi.mock("next-auth/providers/google", () => ({
+  default: {},
+}));
+
+// ─── Mock @barberia-jeranbuq/database ────────────────────────────────────────
+vi.mock("@barberia-jeranbuq/database", () => ({
+  prisma: {
+    user: {
+      update: vi.fn(),
+    },
+  },
+}));
+
+// ─── Mock next/navigation (redirect throws by design in Next.js) ──────────────
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn((path: string) => {
+    throw new Error(`NEXT_REDIRECT:${path}`);
+  }),
+}));
+
+import { validateBarberCode, completeOnboarding } from "../auth.actions";
+import { prisma } from "@barberia-jeranbuq/database";
+import { cookies } from "next/headers";
+import { unstable_update, auth } from "@/backend/lib/auth";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function makeFormData(fields: Record<string, string>): FormData {
+  const fd = new FormData();
+  for (const [key, value] of Object.entries(fields)) {
+    fd.append(key, value);
+  }
+  return fd;
+}
+
+function makeCookieStore() {
+  return {
+    set: vi.fn(),
+    get: vi.fn(),
+    delete: vi.fn(),
+  };
+}
+
+// ─── validateBarberCode Tests ─────────────────────────────────────────────────
+
+describe("validateBarberCode", () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env = { ...originalEnv };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  it("sets httpOnly cookie with plain 'ADMIN' value and returns success when code matches", async () => {
+    process.env.BARBER_SECRET_CODE = "super-secret";
+
+    const mockCookieStore = makeCookieStore();
+    vi.mocked(cookies).mockResolvedValue(mockCookieStore as never);
+
+    const formData = makeFormData({ code: "super-secret" });
+    const result = await validateBarberCode(formData);
+
+    expect(result).toEqual({ success: true });
+    expect(mockCookieStore.set).toHaveBeenCalledOnce();
+
+    const setCall = mockCookieStore.set.mock.calls[0]!;
+    expect(setCall[0]).toBe("x-auth-intent");
+    // Value must be exactly "ADMIN" — signIn callback does an exact-string match
+    expect(setCall[1]).toBe("ADMIN");
+    // Cookie options: httpOnly, maxAge 5 minutes
+    expect(setCall[2]).toMatchObject({ httpOnly: true, maxAge: 300 });
+  });
+
+  it("does not set cookie and returns INVALID_CODE error code when code is wrong", async () => {
+    process.env.BARBER_SECRET_CODE = "super-secret";
+
+    const mockCookieStore = makeCookieStore();
+    vi.mocked(cookies).mockResolvedValue(mockCookieStore as never);
+
+    const formData = makeFormData({ code: "wrong-code" });
+    const result = await validateBarberCode(formData);
+
+    expect(result).toEqual({ success: false, error: "INVALID_CODE" });
+    expect(mockCookieStore.set).not.toHaveBeenCalled();
+  });
+
+  it("returns SERVICE_UNAVAILABLE error code without throwing when BARBER_SECRET_CODE env var is missing", async () => {
+    delete process.env.BARBER_SECRET_CODE;
+
+    const mockCookieStore = makeCookieStore();
+    vi.mocked(cookies).mockResolvedValue(mockCookieStore as never);
+
+    const formData = makeFormData({ code: "any-code" });
+
+    // Must NOT throw — must return a structured error
+    await expect(validateBarberCode(formData)).resolves.toEqual({
+      success: false,
+      error: "SERVICE_UNAVAILABLE",
+    });
+    expect(mockCookieStore.set).not.toHaveBeenCalled();
+  });
+
+  it("returns error without throwing when code field is empty (schema validation)", async () => {
+    process.env.BARBER_SECRET_CODE = "super-secret";
+
+    const mockCookieStore = makeCookieStore();
+    vi.mocked(cookies).mockResolvedValue(mockCookieStore as never);
+
+    const formData = makeFormData({ code: "" });
+    const result = await validateBarberCode(formData);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
+    expect(mockCookieStore.set).not.toHaveBeenCalled();
+  });
+});
+
+// ─── completeOnboarding Tests ─────────────────────────────────────────────────
+
+describe("completeOnboarding", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("updates DB, calls unstable_update, and redirects when phone is valid", async () => {
+    vi.mocked(auth).mockResolvedValue({
+      user: { id: "user-123", role: "CLIENT", phone: null, onboardingCompletedAt: null },
+    } as never);
+
+    vi.mocked(prisma.user.update).mockResolvedValue({} as never);
+    vi.mocked(unstable_update).mockResolvedValue(null);
+
+    const formData = makeFormData({ phone: "+5491112345678" });
+
+    await expect(completeOnboarding(formData)).rejects.toThrow("NEXT_REDIRECT:/");
+
+    expect(prisma.user.update).toHaveBeenCalledOnce();
+    const updateCall = vi.mocked(prisma.user.update).mock.calls[0]![0];
+    expect(updateCall.where).toEqual({ id: "user-123" });
+    expect(updateCall.data.phone).toBe("+5491112345678");
+    expect(updateCall.data.onboardingCompletedAt).toBeInstanceOf(Date);
+
+    expect(unstable_update).toHaveBeenCalledOnce();
+  });
+
+  it("returns validation error when phone is invalid (no DB call)", async () => {
+    vi.mocked(auth).mockResolvedValue({
+      user: { id: "user-123", role: "CLIENT", phone: null, onboardingCompletedAt: null },
+    } as never);
+
+    const formData = makeFormData({ phone: "not-a-phone" });
+    const result = await completeOnboarding(formData);
+
+    expect(result).toEqual({ success: false, error: expect.any(String) });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+    expect(unstable_update).not.toHaveBeenCalled();
+  });
+
+  it("redirects immediately without touching DB when called again after onboarding is complete", async () => {
+    // FIX-3: action now early-exits via redirect if onboardingCompletedAt is already set.
+    // This prevents re-submission attacks via direct POST.
+    vi.mocked(auth).mockResolvedValue({
+      user: {
+        id: "user-456",
+        role: "CLIENT",
+        phone: "+5491199999999",
+        onboardingCompletedAt: "2024-01-01T00:00:00.000Z",
+      },
+    } as never);
+
+    const formData = makeFormData({ phone: "+5491199999999" });
+
+    // Action throws redirect (early exit) — no DB call
+    await expect(completeOnboarding(formData)).rejects.toThrow("NEXT_REDIRECT:/");
+
+    // DB must NOT be updated — early redirect before any DB work
+    expect(prisma.user.update).not.toHaveBeenCalled();
+    expect(unstable_update).not.toHaveBeenCalled();
+  });
+});
