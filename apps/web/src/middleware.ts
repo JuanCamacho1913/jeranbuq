@@ -1,7 +1,10 @@
+import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { Session } from "next-auth";
-import { auth } from "@/backend/lib/auth";
+import { authConfig } from "@/auth.config";
+
+const { auth } = NextAuth(authConfig);
 
 // ─── Core redirect logic (extracted for testability) ─────────────────────────
 
