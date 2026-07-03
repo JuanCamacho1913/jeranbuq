@@ -1,10 +1,10 @@
 import NextAuth from "next-auth";
 import type { NextAuthResult } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import Google from "next-auth/providers/google";
 import { cookies } from "next/headers";
 import { prisma } from "@barberia-jeranbuq/database";
 import type { PrismaClient } from "@barberia-jeranbuq/database";
+import { authConfig } from "@/auth.config";
 
 // ─── Extracted sign-in logic (testable without NextAuth wiring) ───────────────
 
@@ -51,12 +51,13 @@ export async function handleSignInIntent({
 // ─── NextAuth instance ────────────────────────────────────────────────────────
 
 const authResult: NextAuthResult = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(prisma),
-  providers: [Google],
   session: {
     strategy: "jwt",
   },
   callbacks: {
+    ...authConfig.callbacks,
     async signIn({ user, account }) {
       if (user.id && account) {
         const cookieStore = await cookies();
@@ -68,32 +69,6 @@ const authResult: NextAuthResult = NextAuth({
         });
       }
       return true;
-    },
-    async jwt({ token, user, trigger, session }) {
-      if (user) {
-        // Initial sign-in: populate token from the user record
-        token.id = user.id;
-        token.role = user.role ?? null;
-        token.phone = user.phone ?? null;
-        token.onboardingCompletedAt = user.onboardingCompletedAt ?? null;
-      }
-      if (trigger === "update" && session?.user) {
-        // unstable_update() call: merge only the provided fields into the token
-        if (session.user.phone != null) token.phone = session.user.phone;
-        if (session.user.onboardingCompletedAt != null) {
-          token.onboardingCompletedAt = session.user.onboardingCompletedAt;
-        }
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role ?? null;
-        session.user.phone = token.phone ?? null;
-        session.user.onboardingCompletedAt = token.onboardingCompletedAt ?? null;
-      }
-      return session;
     },
   },
 });
