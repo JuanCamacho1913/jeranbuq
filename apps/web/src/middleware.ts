@@ -1,10 +1,7 @@
-import NextAuth from "next-auth";
+import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { Session } from "next-auth";
-import { authConfig } from "@/auth.config";
-
-const { auth } = NextAuth(authConfig);
 
 // ─── Core redirect logic (extracted for testability) ─────────────────────────
 
@@ -48,10 +45,20 @@ export function resolveRedirect(
 
 // ─── Next.js middleware export ────────────────────────────────────────────────
 
-export default auth(function middleware(req: NextRequest) {
-  // auth() injects the session token into req.auth (next-auth v5)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const session = (req as any).auth as Session | null;
+export default async function middleware(req: NextRequest) {
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+
+  const session: Session | null = token
+    ? ({
+        user: {
+          id: token.id as string,
+          role: (token.role as string) ?? null,
+          phone: (token.phone as string) ?? null,
+          onboardingCompletedAt: (token.onboardingCompletedAt as string) ?? null,
+        },
+        expires: new Date((token.exp as number) * 1000).toISOString(),
+      } as Session)
+    : null;
 
   const redirect = resolveRedirect(session, req.nextUrl.pathname, req.url);
   if (redirect) {
@@ -59,7 +66,7 @@ export default auth(function middleware(req: NextRequest) {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [
