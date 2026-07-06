@@ -1,4 +1,4 @@
-import { getToken } from "next-auth/jwt";
+import { hkdf, jwtDecrypt } from "jose";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { Session } from "next-auth";
@@ -43,10 +43,42 @@ export function resolveRedirect(
   return null;
 }
 
+// ─── Auth.js v5 JWT decoding (jose only — no next-auth bundle in edge) ───────
+
+async function decodeAuthToken(
+  req: NextRequest
+): Promise<Record<string, unknown> | null> {
+  const secret = process.env.AUTH_SECRET;
+  if (!secret) return null;
+
+  const isSecure = req.url.startsWith("https://");
+  // auth.js v5 cookie names
+  const cookieName = isSecure
+    ? "__Secure-authjs.session-token"
+    : "authjs.session-token";
+  const raw = req.cookies.get(cookieName)?.value;
+  if (!raw) return null;
+
+  try {
+    // auth.js v5 derives the encryption key via HKDF, using the cookie name as salt
+    const encKey = await hkdf(
+      "sha256",
+      secret,
+      cookieName,
+      `Auth.js Generated Encryption Key (${cookieName})`,
+      32
+    );
+    const { payload } = await jwtDecrypt(raw, encKey, { clockTolerance: 15 });
+    return payload as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Next.js middleware export ────────────────────────────────────────────────
 
 export default async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const token = await decodeAuthToken(req);
 
   const session: Session | null = token
     ? ({
