@@ -12,7 +12,8 @@
     },
     "build": {
       "dependsOn": ["^build", "^db:generate"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": ["DATABASE_URL", "DIRECT_URL", "AUTH_SECRET", "CRON_SECRET"]
     },
     "dev": {
       "dependsOn": ["^db:generate"],
