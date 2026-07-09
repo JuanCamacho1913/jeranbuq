@@ -10,7 +10,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname, "../../"),
   outputFileTracingIncludes: {
-    "**": ["packages/database/generated/prisma/**/*.node"],
+    "**": ["apps/web/generated/prisma/**/*.node"],
   },
   transpilePackages: [
     "@barberia-jeranbuq/database",
