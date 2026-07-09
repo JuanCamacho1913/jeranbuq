@@ -27,5 +27,7 @@ export default withSentryConfig(withBundleAnalyzer(nextConfig), {
   hideSourceMaps: true,
   disableLogger: true,
   automaticVercelMonitors: true,
-  autoInstrumentMiddleware: false,
+  webpack: {
+    autoInstrumentMiddleware: false,
+  },
 });

@@ -1,4 +1,4 @@
-import { hkdf, jwtDecrypt } from "jose";
+import { jwtDecrypt } from "jose";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { Session } from "next-auth";
@@ -43,7 +43,34 @@ export function resolveRedirect(
   return null;
 }
 
-// ─── Auth.js v5 JWT decoding (jose only — no next-auth bundle in edge) ───────
+// ─── Auth.js v5 JWT decoding (Web Crypto + jose — no next-auth bundle in edge) ──
+
+// Derives the AES-256-GCM encryption key using HKDF via the native Web Crypto API.
+// auth.js v5 removed hkdf from the public jose API; Web Crypto is available in Edge.
+async function deriveEncryptionKey(
+  secret: string,
+  cookieName: string
+): Promise<Uint8Array> {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    "HKDF",
+    false,
+    ["deriveBits"]
+  );
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: "HKDF",
+      hash: "SHA-256",
+      salt: enc.encode(cookieName),
+      info: enc.encode(`Auth.js Generated Encryption Key (${cookieName})`),
+    },
+    keyMaterial,
+    256
+  );
+  return new Uint8Array(bits);
+}
 
 async function decodeAuthToken(
   req: NextRequest
@@ -60,14 +87,7 @@ async function decodeAuthToken(
   if (!raw) return null;
 
   try {
-    // auth.js v5 derives the encryption key via HKDF, using the cookie name as salt
-    const encKey = await hkdf(
-      "sha256",
-      secret,
-      cookieName,
-      `Auth.js Generated Encryption Key (${cookieName})`,
-      32
-    );
+    const encKey = await deriveEncryptionKey(secret, cookieName);
     const { payload } = await jwtDecrypt(raw, encKey, { clockTolerance: 15 });
     return payload as Record<string, unknown>;
   } catch {
