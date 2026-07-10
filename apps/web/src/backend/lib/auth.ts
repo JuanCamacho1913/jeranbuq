@@ -70,6 +70,28 @@ const authResult: NextAuthResult = NextAuth({
       }
       return true;
     },
+    async jwt({ token, user, trigger, session }) {
+      if (user) {
+        token.id = user.id;
+        token.phone = user.phone ?? null;
+        token.onboardingCompletedAt = user.onboardingCompletedAt ?? null;
+        // Re-fetch role from DB: the user object here is stale — it was fetched
+        // by the adapter before signIn ran, so role promotion to ADMIN is not
+        // reflected in user.role yet.
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id as string },
+          select: { role: true },
+        });
+        token.role = dbUser?.role ?? user.role ?? null;
+      }
+      if (trigger === "update" && session?.user) {
+        if (session.user.phone != null) token.phone = session.user.phone;
+        if (session.user.onboardingCompletedAt != null) {
+          token.onboardingCompletedAt = session.user.onboardingCompletedAt;
+        }
+      }
+      return token;
+    },
   },
 });
 

@@ -67,7 +67,7 @@ async function deriveEncryptionKey(
       info: enc.encode(`Auth.js Generated Encryption Key (${cookieName})`),
     },
     keyMaterial,
-    256
+    512 // A256CBC-HS512 (auth.js v5 default) requires a 512-bit (64-byte) key
   );
   return new Uint8Array(bits);
 }

@@ -109,7 +109,7 @@ export function AdminSidebar() {
             variant="ghost"
             size="sm"
             className="w-full justify-start gap-3 text-[#A0A0A0] transition-colors duration-200 hover:bg-gold-500/8 hover:text-gold-400"
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => signOut({ callbackUrl: "/inicio" })}
           >
             <LogOut className="h-4 w-4 shrink-0" />
             Cerrar sesión
@@ -142,7 +142,7 @@ export function AdminSidebar() {
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start gap-3 text-[#A0A0A0] hover:bg-gold-500/8 hover:text-gold-400"
-                onClick={() => signOut({ callbackUrl: "/login" })}
+                onClick={() => signOut({ callbackUrl: "/inicio" })}
               >
                 <LogOut className="h-4 w-4 shrink-0" />
                 Cerrar sesión
