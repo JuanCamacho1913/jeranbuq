@@ -53,7 +53,7 @@ export function ClientHeader() {
   }
 
   function handleSignOut() {
-    signOut({ callbackUrl: "/login" });
+    signOut({ callbackUrl: "/inicio" });
   }
 
   const userName = session?.user?.name ?? session?.user?.email ?? "";
