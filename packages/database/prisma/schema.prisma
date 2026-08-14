@@ -56,10 +56,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accounts     Account[]
-  sessions     Session[]
-  timeBlocks   TimeBlock[]
-  appointments Appointment[]
+  accounts             Account[]
+  sessions             Session[]
+  timeBlocks           TimeBlock[]
+  recurringTimeBlocks  RecurringTimeBlock[]
+  appointments         Appointment[]
 
   @@map("users")
 }
@@ -153,6 +154,23 @@ model TimeBlock {
   creator User @relation(fields: [createdBy], references: [id])
 
   @@map("time_blocks")
+}
+
+model RecurringTimeBlock {
+  id        String   @id @default(cuid())
+  dayOfWeek Int      // 0=Sunday, 6=Saturday
+  startTime String   // "HH:mm"
+  endTime   String   // "HH:mm"
+  reason    String?
+  active    Boolean  @default(true)
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@index([dayOfWeek, active])
+  @@map("recurring_time_blocks")
 }
 
 model Appointment {

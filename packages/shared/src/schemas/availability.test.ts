@@ -3,6 +3,8 @@ import {
   dayScheduleSchema,
   updateScheduleSchema,
   createTimeBlockSchema,
+  createRecurringTimeBlockSchema,
+  updateRecurringTimeBlockSchema,
 } from "./availability";
 
 // ─── dayScheduleSchema ────────────────────────────────────────────────────────
@@ -195,5 +197,130 @@ describe("createTimeBlockSchema", () => {
   it("rejects a missing date field", () => {
     const { date: _date, ...rest } = validBlock;
     expect(() => createTimeBlockSchema.parse(rest)).toThrow();
+  });
+});
+
+// ─── createRecurringTimeBlockSchema ────────────────────────────────────────────
+
+describe("createRecurringTimeBlockSchema", () => {
+  const validRule = {
+    dayOfWeek: 1,
+    startTime: "13:00",
+    endTime: "14:00",
+    reason: "Almuerzo semanal",
+  };
+
+  it("accepts a fully valid recurring rule", () => {
+    expect(() =>
+      createRecurringTimeBlockSchema.parse(validRule)
+    ).not.toThrow();
+  });
+
+  it("accepts a rule without optional reason", () => {
+    const { reason: _reason, ...rest } = validRule;
+    expect(() => createRecurringTimeBlockSchema.parse(rest)).not.toThrow();
+  });
+
+  it("does NOT accept or require a date range field", () => {
+    const result = createRecurringTimeBlockSchema.parse(validRule);
+    expect(result).not.toHaveProperty("date");
+    expect(result).not.toHaveProperty("startDate");
+    expect(result).not.toHaveProperty("endDate");
+  });
+
+  it("rejects when endTime is before startTime", () => {
+    expect(() =>
+      createRecurringTimeBlockSchema.parse({
+        ...validRule,
+        startTime: "14:00",
+        endTime: "13:00",
+      })
+    ).toThrow();
+  });
+
+  it("rejects when endTime equals startTime", () => {
+    expect(() =>
+      createRecurringTimeBlockSchema.parse({
+        ...validRule,
+        startTime: "13:00",
+        endTime: "13:00",
+      })
+    ).toThrow();
+  });
+
+  it("rejects dayOfWeek below 0", () => {
+    expect(() =>
+      createRecurringTimeBlockSchema.parse({ ...validRule, dayOfWeek: -1 })
+    ).toThrow();
+  });
+
+  it("rejects dayOfWeek above 6", () => {
+    expect(() =>
+      createRecurringTimeBlockSchema.parse({ ...validRule, dayOfWeek: 7 })
+    ).toThrow();
+  });
+
+  it("accepts all valid dayOfWeek values (0-6)", () => {
+    for (let day = 0; day <= 6; day++) {
+      expect(() =>
+        createRecurringTimeBlockSchema.parse({ ...validRule, dayOfWeek: day })
+      ).not.toThrow();
+    }
+  });
+
+  it("rejects invalid startTime format (not HH:mm)", () => {
+    expect(() =>
+      createRecurringTimeBlockSchema.parse({ ...validRule, startTime: "1:00" })
+    ).toThrow();
+  });
+
+  it("rejects reason exceeding 200 characters", () => {
+    expect(() =>
+      createRecurringTimeBlockSchema.parse({
+        ...validRule,
+        reason: "a".repeat(201),
+      })
+    ).toThrow();
+  });
+});
+
+// ─── updateRecurringTimeBlockSchema ────────────────────────────────────────────
+
+describe("updateRecurringTimeBlockSchema", () => {
+  const validUpdate = {
+    dayOfWeek: 1,
+    startTime: "13:00",
+    endTime: "14:00",
+    reason: "Almuerzo semanal",
+    active: false,
+  };
+
+  it("accepts a fully valid update including active", () => {
+    expect(() =>
+      updateRecurringTimeBlockSchema.parse(validUpdate)
+    ).not.toThrow();
+  });
+
+  it("accepts an update without the optional active field", () => {
+    const { active: _active, ...rest } = validUpdate;
+    expect(() =>
+      updateRecurringTimeBlockSchema.parse(rest)
+    ).not.toThrow();
+  });
+
+  it("rejects when endTime is before startTime", () => {
+    expect(() =>
+      updateRecurringTimeBlockSchema.parse({
+        ...validUpdate,
+        startTime: "14:00",
+        endTime: "13:00",
+      })
+    ).toThrow();
+  });
+
+  it("rejects dayOfWeek above 6", () => {
+    expect(() =>
+      updateRecurringTimeBlockSchema.parse({ ...validUpdate, dayOfWeek: 7 })
+    ).toThrow();
   });
 });
