@@ -29,8 +29,11 @@ const BOGOTA_UTC_OFFSET_MS = 5 * 60 * 60 * 1000; // America/Bogota is UTC-5 (no 
 /**
  * Fetches a RecurringTimeBlock by id, or null if it doesn't exist.
  * Centralizes the findUnique-then-act guard shared by update/toggle/delete.
+ * Exported so the actions layer can diff a submitted edit against the
+ * stored row to decide whether the conflict gate applies (time/day change
+ * vs. reason-only edit) without duplicating this query.
  */
-async function findRuleById(id: string): Promise<RecurringTimeBlock | null> {
+export async function findRuleById(id: string): Promise<RecurringTimeBlock | null> {
   return prisma.recurringTimeBlock.findUnique({ where: { id } });
 }
 
