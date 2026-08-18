@@ -42,8 +42,44 @@ export const createTimeBlockSchema = z
     path: ["endTime"],
   });
 
+// ─── createRecurringTimeBlockSchema ────────────────────────────────────────────
+
+export const createRecurringTimeBlockSchema = z
+  .object({
+    dayOfWeek: z.number().int().min(0).max(6),
+    startTime: z.string().regex(timeRegex),
+    endTime: z.string().regex(timeRegex),
+    reason: z.string().max(200).optional(),
+  })
+  .refine((data) => data.endTime > data.startTime, {
+    message: "endTime must be after startTime",
+    path: ["endTime"],
+  });
+
+// ─── updateRecurringTimeBlockSchema ────────────────────────────────────────────
+// Cannot .partial() a ZodEffects (refined schema) — restate the shape instead.
+
+export const updateRecurringTimeBlockSchema = z
+  .object({
+    dayOfWeek: z.number().int().min(0).max(6),
+    startTime: z.string().regex(timeRegex),
+    endTime: z.string().regex(timeRegex),
+    reason: z.string().max(200).optional(),
+    active: z.boolean().optional(),
+  })
+  .refine((data) => data.endTime > data.startTime, {
+    message: "endTime must be after startTime",
+    path: ["endTime"],
+  });
+
 // ─── Inferred Types ───────────────────────────────────────────────────────────
 
 export type DaySchedule = z.infer<typeof dayScheduleSchema>;
 export type UpdateScheduleData = z.infer<typeof updateScheduleSchema>;
 export type CreateTimeBlockData = z.infer<typeof createTimeBlockSchema>;
+export type CreateRecurringTimeBlockData = z.infer<
+  typeof createRecurringTimeBlockSchema
+>;
+export type UpdateRecurringTimeBlockData = z.infer<
+  typeof updateRecurringTimeBlockSchema
+>;

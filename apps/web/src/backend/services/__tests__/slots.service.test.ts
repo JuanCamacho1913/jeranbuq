@@ -3,21 +3,29 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 // ─── Mock Prisma client ───────────────────────────────────────────────────────
 // vi.hoisted ensures the object is defined before vi.mock hoisting runs.
 
-const { mockPrismaService, mockPrismaAdminAvailability, mockPrismaTimeBlock, mockPrismaAppointment } =
-  vi.hoisted(() => ({
-    mockPrismaService: {
-      findUnique: vi.fn(),
-    },
-    mockPrismaAdminAvailability: {
-      findUnique: vi.fn(),
-    },
-    mockPrismaTimeBlock: {
-      findMany: vi.fn(),
-    },
-    mockPrismaAppointment: {
-      findMany: vi.fn(),
-    },
-  }));
+const {
+  mockPrismaService,
+  mockPrismaAdminAvailability,
+  mockPrismaTimeBlock,
+  mockPrismaAppointment,
+  mockPrismaRecurringTimeBlock,
+} = vi.hoisted(() => ({
+  mockPrismaService: {
+    findUnique: vi.fn(),
+  },
+  mockPrismaAdminAvailability: {
+    findUnique: vi.fn(),
+  },
+  mockPrismaTimeBlock: {
+    findMany: vi.fn(),
+  },
+  mockPrismaAppointment: {
+    findMany: vi.fn(),
+  },
+  mockPrismaRecurringTimeBlock: {
+    findMany: vi.fn(),
+  },
+}));
 
 vi.mock("@barberia-jeranbuq/database", () => ({
   prisma: {
@@ -25,6 +33,7 @@ vi.mock("@barberia-jeranbuq/database", () => ({
     adminAvailability: mockPrismaAdminAvailability,
     timeBlock: mockPrismaTimeBlock,
     appointment: mockPrismaAppointment,
+    recurringTimeBlock: mockPrismaRecurringTimeBlock,
   },
 }));
 
@@ -65,6 +74,10 @@ describe("getAvailableSlots", () => {
     // Freeze time before all test dates so past-slot filtering doesn't affect them.
     // TC-8 overrides this with its own setSystemTime call.
     vi.useFakeTimers({ now: new Date("2026-01-01T00:00:00.000Z") });
+    // Safety net (mandatory): without this default, every pre-existing test
+    // would throw on `undefined.findMany` once the production code calls
+    // prisma.recurringTimeBlock.findMany.
+    mockPrismaRecurringTimeBlock.findMany.mockResolvedValue([]);
   });
 
   // ─── TC-1: No AdminAvailability → empty array ─────────────────────────────
@@ -82,6 +95,7 @@ describe("getAvailableSlots", () => {
     });
     expect(mockPrismaTimeBlock.findMany).not.toHaveBeenCalled();
     expect(mockPrismaAppointment.findMany).not.toHaveBeenCalled();
+    expect(mockPrismaRecurringTimeBlock.findMany).not.toHaveBeenCalled();
   });
 
   // ─── TC-2: AdminAvailability exists but inactive → empty array ───────────
@@ -99,6 +113,7 @@ describe("getAvailableSlots", () => {
       ok: true,
       data: { date: "2026-06-15", slots: [] },
     });
+    expect(mockPrismaRecurringTimeBlock.findMany).not.toHaveBeenCalled();
   });
 
   // ─── TC-3: Normal day generates correct slots ─────────────────────────────
@@ -413,5 +428,184 @@ describe("getAvailableSlots", () => {
         }),
       })
     );
+  });
+
+  // ─── TC-14: Active recurring block marks matching weekday slots unavailable ──
+
+  it("marks slots overlapping an active RecurringTimeBlock as unavailable", async () => {
+    // 2026-06-22 is a Monday (dayOfWeek = 1)
+    mockPrismaService.findUnique.mockResolvedValueOnce(mockService);
+    mockPrismaAdminAvailability.findUnique.mockResolvedValueOnce(mockAvailability);
+    mockPrismaTimeBlock.findMany.mockResolvedValueOnce([]);
+    mockPrismaAppointment.findMany.mockResolvedValueOnce([]);
+    mockPrismaRecurringTimeBlock.findMany.mockResolvedValueOnce([
+      {
+        id: "rtb-1",
+        dayOfWeek: 1,
+        startTime: "10:00",
+        endTime: "11:00",
+        reason: "Weekly maintenance",
+        active: true,
+        createdBy: "admin-1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+
+    const result = await getAvailableSlots(SERVICE_ID, "2026-06-22");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const slot1000 = result.data.slots.find((s) => s.startTime === "10:00");
+    const slot1030 = result.data.slots.find((s) => s.startTime === "10:30");
+    const slot0930 = result.data.slots.find((s) => s.startTime === "09:30");
+    const slot1100 = result.data.slots.find((s) => s.startTime === "11:00");
+
+    expect(slot1000?.available).toBe(false);
+    expect(slot1030?.available).toBe(false);
+    expect(slot0930?.available).toBe(true);
+    expect(slot1100?.available).toBe(true);
+    expect(mockPrismaRecurringTimeBlock.findMany).toHaveBeenCalledWith({
+      where: { dayOfWeek: 1, active: true },
+    });
+  });
+
+  // ─── TC-15: Recurring block for a different weekday does not affect slots ───
+
+  it("does not affect slots when the RecurringTimeBlock is queried for a non-matching weekday", async () => {
+    // The service only queries RecurringTimeBlock rows for the requested day's
+    // dayOfWeek, so a differently-scoped mock (representing "no rows for this
+    // day") must leave every slot available.
+    mockPrismaService.findUnique.mockResolvedValueOnce(mockService);
+    mockPrismaAdminAvailability.findUnique.mockResolvedValueOnce(mockAvailability);
+    mockPrismaTimeBlock.findMany.mockResolvedValueOnce([]);
+    mockPrismaAppointment.findMany.mockResolvedValueOnce([]);
+    mockPrismaRecurringTimeBlock.findMany.mockResolvedValueOnce([]);
+
+    const result = await getAvailableSlots(SERVICE_ID, "2026-06-22");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.data.slots.every((s) => s.available)).toBe(true);
+  });
+
+  // ─── TC-16: Inactive recurring block excluded via the query filter ─────────
+
+  it("queries only active RecurringTimeBlock rows and ignores inactive ones", async () => {
+    mockPrismaService.findUnique.mockResolvedValueOnce(mockService);
+    mockPrismaAdminAvailability.findUnique.mockResolvedValueOnce(mockAvailability);
+    mockPrismaTimeBlock.findMany.mockResolvedValueOnce([]);
+    mockPrismaAppointment.findMany.mockResolvedValueOnce([]);
+    // The prisma query itself filters active:true, so an inactive row would
+    // never be returned by a correct `where` clause — assert that contract.
+    mockPrismaRecurringTimeBlock.findMany.mockResolvedValueOnce([]);
+
+    const result = await getAvailableSlots(SERVICE_ID, "2026-06-22");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.data.slots.every((s) => s.available)).toBe(true);
+    expect(mockPrismaRecurringTimeBlock.findMany).toHaveBeenCalledWith({
+      where: { dayOfWeek: 1, active: true },
+    });
+  });
+
+  // ─── TC-17: Recurring block and exact-date TimeBlock both apply ────────────
+
+  it("applies both a RecurringTimeBlock and an exact-date TimeBlock exclusion together", async () => {
+    mockPrismaService.findUnique.mockResolvedValueOnce(mockService);
+    mockPrismaAdminAvailability.findUnique.mockResolvedValueOnce(mockAvailability);
+    mockPrismaTimeBlock.findMany.mockResolvedValueOnce([
+      {
+        id: "tb-1",
+        date: new Date("2026-06-22"),
+        startTime: "15:00",
+        endTime: "16:00",
+        reason: "Break",
+        createdBy: "admin-1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    mockPrismaAppointment.findMany.mockResolvedValueOnce([]);
+    mockPrismaRecurringTimeBlock.findMany.mockResolvedValueOnce([
+      {
+        id: "rtb-1",
+        dayOfWeek: 1,
+        startTime: "10:00",
+        endTime: "11:00",
+        reason: "Weekly maintenance",
+        active: true,
+        createdBy: "admin-1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+
+    const result = await getAvailableSlots(SERVICE_ID, "2026-06-22");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const slot1000 = result.data.slots.find((s) => s.startTime === "10:00");
+    const slot1500 = result.data.slots.find((s) => s.startTime === "15:00");
+    const slot1400 = result.data.slots.find((s) => s.startTime === "14:00");
+
+    expect(slot1000?.available).toBe(false);
+    expect(slot1500?.available).toBe(false);
+    expect(slot1400?.available).toBe(true);
+  });
+
+  // ─── TC-18: Two recurring rules on the same weekday both apply (union) ─────
+
+  it("unions the ranges of two RecurringTimeBlock rows on the same weekday", async () => {
+    mockPrismaService.findUnique.mockResolvedValueOnce(mockService);
+    mockPrismaAdminAvailability.findUnique.mockResolvedValueOnce(mockAvailability);
+    mockPrismaTimeBlock.findMany.mockResolvedValueOnce([]);
+    mockPrismaAppointment.findMany.mockResolvedValueOnce([]);
+    mockPrismaRecurringTimeBlock.findMany.mockResolvedValueOnce([
+      {
+        id: "rtb-1",
+        dayOfWeek: 1,
+        startTime: "12:00",
+        endTime: "13:00",
+        reason: null,
+        active: true,
+        createdBy: "admin-1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "rtb-2",
+        dayOfWeek: 1,
+        startTime: "13:00",
+        endTime: "14:00",
+        reason: null,
+        active: true,
+        createdBy: "admin-1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+
+    const result = await getAvailableSlots(SERVICE_ID, "2026-06-22");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const slot1200 = result.data.slots.find((s) => s.startTime === "12:00");
+    const slot1230 = result.data.slots.find((s) => s.startTime === "12:30");
+    const slot1300 = result.data.slots.find((s) => s.startTime === "13:00");
+    const slot1330 = result.data.slots.find((s) => s.startTime === "13:30");
+    const slot1400 = result.data.slots.find((s) => s.startTime === "14:00");
+
+    expect(slot1200?.available).toBe(false);
+    expect(slot1230?.available).toBe(false);
+    expect(slot1300?.available).toBe(false);
+    expect(slot1330?.available).toBe(false);
+    expect(slot1400?.available).toBe(true);
   });
 });

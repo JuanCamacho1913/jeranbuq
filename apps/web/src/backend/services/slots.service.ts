@@ -53,6 +53,8 @@ function bogotaToUTC(date: string, time: string): Date {
  * 3. Fetch AdminAvailability for dayOfWeek (active:true) → if none, return empty slots.
  * 4. Generate candidate slots at slotMinutes intervals from startTime to (endTime - durationMin).
  * 5. Fetch TimeBlocks for the date → mark overlapping candidates unavailable (string compare).
+ * 5b. Fetch active RecurringTimeBlock rows matching dayOfWeek → mark overlapping candidates
+ *     unavailable (same "HH:mm" string compare, additive to TimeBlock; reuses dayOfWeek from step 2).
  * 6. Fetch Appointments for the UTC day range with status IN [PENDING, CONFIRMED].
  * 7. Mark slots overlapping any appointment as unavailable (UTC comparison).
  * 8. If date is today (Bogota): mark slots where startTime <= now (Bogota) as unavailable.
@@ -137,6 +139,12 @@ export async function getAvailableSlots(
     },
   });
 
+  // Step 5b: Fetch active RecurringTimeBlock rows matching the weekday.
+  // Reuses the `dayOfWeek` already derived in Step 2 — not re-derived here.
+  const recurringBlocks = await prisma.recurringTimeBlock.findMany({
+    where: { dayOfWeek, active: true },
+  });
+
   // Step 7 & 8: Build slot items with availability flags
   const nowUTC = new Date();
 
@@ -153,6 +161,16 @@ export async function getAvailableSlots(
       if (block.startTime < slotEndTime && block.endTime > slotStartTime) {
         available = false;
         break;
+      }
+    }
+
+    // Check RecurringTimeBlock overlap (string lexicographic comparison, same as TimeBlock)
+    if (available) {
+      for (const rule of recurringBlocks) {
+        if (rule.startTime < slotEndTime && rule.endTime > slotStartTime) {
+          available = false;
+          break;
+        }
       }
     }
 
